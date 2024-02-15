@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -20,7 +21,18 @@ namespace WPFLinIDE01
             Process externalProcess = new Process();
             externalProcess.StartInfo.FileName = "powershell.exe";
             externalProcess.Start();
-            externalProcess.WaitForInputIdle();
+            externalProcess.WaitForExit();
+
+            IntPtr mainWindowHandle = IntPtr.Zero;
+
+            while ((mainWindowHandle = NativeMethods.FindWindow(null, "Powershell")) == IntPtr.Zero)
+            {
+                if (externalProcess.HasExited)
+                { 
+                    throw new InvalidOperationException("Failed to find window for the exteneral process");
+                }
+                Thread.Sleep(100);
+            }
 
             _hwnd = externalProcess.MainWindowHandle;
 
@@ -60,7 +72,10 @@ namespace WPFLinIDE01
             public static extern IntPtr SetParent(IntPtr hWnd, IntPtr hWndParent);
 
             [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-            public static extern bool IsWindowVisible(IntPtr hWnd);
+            public static extern bool IsWindowVisible(IntPtr hWnd); 
+            
+            [DllImport("user32.dll", CharSet = CharSet.Auto)]
+            public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
         }
     }
 }
