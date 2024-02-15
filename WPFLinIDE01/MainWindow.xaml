@@ -1,0 +1,39 @@
+﻿<Window x:Class="WPFLinIDE01.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPFLinIDE01"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        mc:Ignorable="d"
+        Title="IDE" Height="800" Width="1200" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="230"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition/>
+            <RowDefinition Height="220"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Background="#5C5C5C" Grid.ColumnSpan="2">
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Background="#7A7A7A">
+            <TextBox x:Name="tbEditor" Height="525" Background="Transparent" BorderThickness="0" FontSize="15" Foreground="Black"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Background="#616161">
+            <!--<TextBox x:Name="tbTermial" Height="220" Background="Transparent" BorderThickness="0"/>-->
+            <local:ExtrenalProgramHost/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Background="#707070">
+
+        </StackPanel>
+    </Grid>
+</Window>
