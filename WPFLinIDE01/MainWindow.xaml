@@ -7,7 +7,13 @@
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"
         Title="IDE" Height="800" Width="1200" WindowStartupLocation="CenterScreen">
-    <Grid>
+
+    <Window.InputBindings>
+        <KeyBinding Key="P" Modifiers="Ctrl" Command="{Binding Show_PowerShell}"/>
+    </Window.InputBindings>
+
+
+    <Grid Name="gMain">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition Width="230"/>
@@ -16,7 +22,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition/>
-            <RowDefinition Height="220"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
         <StackPanel Background="#5C5C5C" Grid.ColumnSpan="2">
@@ -27,10 +33,9 @@
             <TextBox x:Name="tbEditor" Height="525" Background="Transparent" BorderThickness="0" FontSize="15" Foreground="Black"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Background="#616161">
-            <!--<TextBox x:Name="tbTermial" Height="220" Background="Transparent" BorderThickness="0"/>-->
-            <local:ExtrenalProgramHost/>
-        </StackPanel>
+        <Grid x:Name="gTermialPanel" Grid.Row="2" Height="220" Background="#616161">
+        
+        </Grid>
 
         <StackPanel Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Background="#707070">
 
