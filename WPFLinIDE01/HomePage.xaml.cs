@@ -38,8 +38,7 @@ namespace WPFLinIDE01
             if (openFolderDialog.ShowDialog() == true)
             {
                 App.Current.Properties["ProjectPath"] = openFolderDialog.FolderName;
-                Debug.WriteLine(openFolderDialog.FolderName.Substring(0, openFolderDialog.RootDirectory.Length - 5));
-                App.Current.Properties["ProjectName"] = "";
+                App.Current.Properties["ProjectName"] = Path.GetFileName(openFolderDialog.FolderName);
                 Close();
             }
             
@@ -66,6 +65,24 @@ namespace WPFLinIDE01
                 DirectoryInfo diretoryPath = Directory.CreateDirectory(Path.Combine(openFolderDialog.FolderName, App.Current.Properties["ProjectName"].ToString()));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "Assets"));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "Resources"));
+
+                FileStream basicFile = File.Create(Path.Combine(diretoryPath.FullName, "Program.cs"));
+
+                using (StreamWriter writer = new StreamWriter(basicFile))
+                {
+                    writer.WriteLine(@$"using System;
+
+namespace {diretoryPath.Name}
+{{
+    class Program
+    {{
+        static void Main(string[] args)
+        {{
+            Console.WriteLine(""Hello, world!"");
+        }}
+    }}
+}}");
+                }
 
                 App.Current.Properties["ProjectPath"] = diretoryPath.FullName;
                 App.Current.Properties["ProjectName"] = diretoryPath.Name;

@@ -2,11 +2,15 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
 using ConsoleControls = ConsoleControl.ConsoleControl;
 
 namespace WPFLinIDE01
@@ -66,22 +70,25 @@ namespace WPFLinIDE01
                 foreach (string folder in Directory.GetDirectories(path))
                 {
                     TreeViewItem folderNode = new TreeViewItem();
-                    folderNode.Header = Path.GetFileName(folder);
+                    folderNode.Header = CreateHeader(Path.GetFileName(folder), true); // Indicate it's a folder
+                    folderNode.Tag = folder; // Store full path for later use
+                    folderNode.Items.Add("*"); // Placeholder to show expand/collapse arrow
+                    folderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
                     parentNode.Items.Add(folderNode);
-
-                    PopulateTreeView(folder, folderNode);
                 }
                 foreach (string file in Directory.GetFiles(path))
-                { 
+                {
                     TreeViewItem fileNode = new TreeViewItem();
-                    fileNode.Header = Path.GetFileName(file);
+                    fileNode.Header = CreateHeader(Path.GetFileName(file), false); // Indicate it's a folder
+                    fileNode.Tag = file; // Store full path for later use
+                    fileNode.MouseDoubleClick += FileNode_MouseDown;
                     parentNode.Items.Add(fileNode);
                 }
             }
             catch (UnauthorizedAccessException ex)
             {
                 System.Windows.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Environment.Exit(1);    
+                Environment.Exit(1);
             }
         }
 
@@ -90,11 +97,85 @@ namespace WPFLinIDE01
             string rootFolder = App.Current.Properties["ProjectPath"].ToString();
 
             TreeViewItem rootNode = new TreeViewItem();
-            rootNode.Header = App.Current.Properties["ProjectName"].ToString();
+            rootNode.Header = CreateHeader(App.Current.Properties["ProjectName"].ToString(), true); // Indicate it's a folder
             tvFileTree.Items.Add(rootNode);
 
             PopulateTreeView(rootFolder, rootNode);
         }
+
+        private StackPanel CreateHeader(string text, bool isFolder)
+        {
+            StackPanel panel = new StackPanel();
+            panel.Orientation = System.Windows.Controls.Orientation.Horizontal;
+
+            if (isFolder)
+            {
+                System.Windows.Controls.Image image = new System.Windows.Controls.Image();
+                image.Source = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Resources/folder.png")); // Set your folder icon path here
+                image.Width = 16;
+                image.Height = 16;
+                panel.Children.Add(image);
+            }
+            else
+            {
+                System.Windows.Controls.Image image = new System.Windows.Controls.Image();
+                image.Source = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Resources/file.png"));
+                image.Width = 16;
+                image.Height = 16;
+                panel.Children.Add(image);
+            }
+
+            TextBlock headerText = new TextBlock();
+            headerText.Text = text;
+            panel.Children.Add(headerText);
+
+            return panel;
+        }
+
+        private void Folder_Expanded(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem folderNode = (TreeViewItem)sender;
+            if (folderNode.Items.Count == 1 && (string)folderNode.Items[0] == "*") // Lazy loading
+            {
+                folderNode.Items.Clear();
+                string path = (string)folderNode.Tag;
+                try
+                {
+                    foreach (string folder in Directory.GetDirectories(path))
+                    {
+                        TreeViewItem subFolderNode = new TreeViewItem();
+                        subFolderNode.Header = CreateHeader(Path.GetFileName(folder), true);
+                        subFolderNode.Tag = folder;
+                        subFolderNode.Items.Add("*"); // Placeholder for sub-nodes
+                        subFolderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
+                        folderNode.Items.Add(subFolderNode);
+                    }
+
+                    foreach (string file in Directory.GetFiles(path))
+                    {
+                        TreeViewItem fileNode = new TreeViewItem();
+                        fileNode.Header = CreateHeader(Path.GetFileName(file), false);
+                        fileNode.MouseDoubleClick += FileNode_MouseDown;
+                        folderNode.Items.Add(fileNode);
+                    }
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    System.Windows.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void FileNode_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            TreeViewItem treeViewItem = sender as TreeViewItem;
+            
+            string filePath = treeViewItem.Tag.ToString();
+
+            tbEditor.Text = File.ReadAllText(filePath);
+            
+        }
+
 
         #endregion FileExplorer
 
@@ -140,12 +221,10 @@ namespace WPFLinIDE01
             terminal.ProcessInterface.StartProcess(process.StartInfo);
             terminal.OnConsoleInput += Terminal_OnConsoleInput;
 
+            terminal.ProcessInterface.WriteInput($"cd {App.Current.Properties["ProjectPath"]}");
 
             terminal.IsInputEnabled = true;
             terminal.Font = new Font("Poppins", 11);
-            
-            
-
             terminal.BorderStyle = BorderStyle.FixedSingle;
 
             host = new WindowsFormsHost();

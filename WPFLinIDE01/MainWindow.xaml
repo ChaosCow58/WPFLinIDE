@@ -12,7 +12,6 @@
         <KeyBinding Key="C" Modifiers="Ctrl+Alt" Command="{Binding Show_PowerShell}"/>
     </Window.InputBindings>
 
-
     <Grid Name="gMain">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -38,7 +37,7 @@
         </Grid>
 
         <StackPanel Name="spFileTree" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Background="#707070">
-            <TreeView x:Name="tvFileTree" Height="750" Background="Transparent"/>
+            <TreeView x:Name="tvFileTree" Height="750" Background="Transparent" FontSize="14"/>
         </StackPanel>
     </Grid>
 </Window>
