@@ -2,15 +2,13 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using System.Windows.Media;
+
 using ConsoleControls = ConsoleControl.ConsoleControl;
 
 namespace WPFLinIDE01
@@ -33,7 +31,7 @@ namespace WPFLinIDE01
             homePage.ShowDialog();
 
             if (App.Current.Properties["ProjectPath"] == null)
-            { 
+            {
                 Close();
             }
 
@@ -169,11 +167,10 @@ namespace WPFLinIDE01
         private void FileNode_MouseDown(object sender, MouseButtonEventArgs e)
         {
             TreeViewItem treeViewItem = sender as TreeViewItem;
-            
+
             string filePath = treeViewItem.Tag.ToString();
 
             tbEditor.Text = File.ReadAllText(filePath);
-            
         }
 
 
@@ -202,7 +199,7 @@ namespace WPFLinIDE01
 
         #region Terminal
         private void CreateTermial()
-        { 
+        {
             process = new Process();
             process.StartInfo = new ProcessStartInfo()
             {
@@ -253,7 +250,6 @@ namespace WPFLinIDE01
             }
         }
         #endregion Terminal
-
 
     }
 }

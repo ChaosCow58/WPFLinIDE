@@ -24,8 +24,17 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Background="#5C5C5C" Grid.ColumnSpan="2">
-
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#5C5C5C" Grid.ColumnSpan="2">
+            <Button Content="File" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold"/>
+            <Button Content="Edit" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold"/>
+            <Button Content="Git" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold"/>
+            <Border BorderBrush="DarkGray" BorderThickness="1.5,0,0,0" Height="30" CornerRadius="1"/>
+            <Button Background="Transparent" BorderThickness="0">
+                <StackPanel Orientation="Horizontal" Margin="13,0,0,0">
+                    <Polygon Points="0,0 20,10 0,20" Fill="#8AE28A" VerticalAlignment="Center"/>
+                    <Label Content="Run Code" VerticalAlignment="Center" Foreground="LightGray"/>
+                </StackPanel>
+            </Button>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Background="#7A7A7A">
