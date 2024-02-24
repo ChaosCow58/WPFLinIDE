@@ -65,6 +65,7 @@ namespace WPFLinIDE01
                 DirectoryInfo diretoryPath = Directory.CreateDirectory(Path.Combine(openFolderDialog.FolderName, App.Current.Properties["ProjectName"].ToString()));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "Assets"));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "Resources"));
+                Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "bin"));
 
                 FileStream basicFile = File.Create(Path.Combine(diretoryPath.FullName, "Program.cs"));
 

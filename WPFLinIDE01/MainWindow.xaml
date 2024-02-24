@@ -29,7 +29,7 @@
             <Button Content="Edit" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold"/>
             <Button Content="Git" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold"/>
             <Border BorderBrush="DarkGray" BorderThickness="1.5,0,0,0" Height="30" CornerRadius="1"/>
-            <Button Background="Transparent" BorderThickness="0">
+            <Button Background="Transparent" BorderThickness="0" Click="btRunCode_Click">
                 <StackPanel Orientation="Horizontal" Margin="13,0,0,0">
                     <Polygon Points="0,0 20,10 0,20" Fill="#8AE28A" VerticalAlignment="Center"/>
                     <Label Content="Run Code" VerticalAlignment="Center" Foreground="LightGray"/>

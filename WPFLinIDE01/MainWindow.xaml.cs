@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -22,6 +24,8 @@ namespace WPFLinIDE01
         private ConsoleControls terminal;
 
         public ICommand Show_PowerShell { get; }
+
+        private string currentFilePath = string.Empty;
 
         public MainWindow()
         {
@@ -168,9 +172,17 @@ namespace WPFLinIDE01
         {
             TreeViewItem treeViewItem = sender as TreeViewItem;
 
-            string filePath = treeViewItem.Tag.ToString();
+            try
+            {
+                currentFilePath = treeViewItem.Tag.ToString();
 
-            tbEditor.Text = File.ReadAllText(filePath);
+                tbEditor.Text = File.ReadAllText(currentFilePath);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
         }
 
 
@@ -251,5 +263,26 @@ namespace WPFLinIDE01
         }
         #endregion Terminal
 
+        private void btRunCode_Click(object sender, RoutedEventArgs e)
+        {
+          
+            if (gTermialPanel.Visibility == Visibility.Collapsed)
+            {
+                CreateTermial();
+                gTermialPanel.Visibility = Visibility.Visible;
+            }
+            Thread.Sleep(500);
+
+            string binDirectory = @$"{App.Current.Properties["ProjectPath"]}\bin\";
+
+            if (!Directory.Exists(binDirectory))
+            { 
+                Directory.CreateDirectory(binDirectory);
+            }
+
+            terminal.ProcessInterface.WriteInput(@$"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe -out:""{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe"" ""{currentFilePath}""");
+            terminal.ProcessInterface.WriteInput(@$"{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe");
+            
+        }
     }
 }
