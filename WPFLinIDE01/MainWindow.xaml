@@ -9,13 +9,15 @@
         Title="IDE" Height="800" Width="1200" WindowStartupLocation="CenterScreen">
 
     <Window.InputBindings>
-        <KeyBinding Key="C" Modifiers="Ctrl+Alt" Command="{Binding Show_PowerShell}"/>
+        <KeyBinding Key="C" Modifiers="Ctrl+Alt" Command="{Binding ShowPowerShell_Command}"/>
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveFile_Command}"/>
+        <KeyBinding Key="F5" Command="{Binding RunCode_Command}"/>
     </Window.InputBindings>
 
     <Grid Name="gMain">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="230"/>
+            <ColumnDefinition Width="300"/> <!--+70--> 
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -25,20 +27,26 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#5C5C5C" Grid.ColumnSpan="2">
-            <Button Content="File" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold"/>
+            <Button Content="File" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold" Click="MenuItem_Click">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Name="miSaveItem" Header="Save File" Click="miSave_MenuItem_Click" Icon="" InputGestureText="Ctrl+S"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
             <Button Content="Edit" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold"/>
             <Button Content="Git" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold"/>
             <Border BorderBrush="DarkGray" BorderThickness="1.5,0,0,0" Height="30" CornerRadius="1"/>
-            <Button Background="Transparent" BorderThickness="0" Click="btRunCode_Click">
+            <Button x:Name="c" Background="Transparent" BorderThickness="0" Click="btRunCode_Click">
                 <StackPanel Orientation="Horizontal" Margin="13,0,0,0">
                     <Polygon Points="0,0 20,10 0,20" Fill="#8AE28A" VerticalAlignment="Center"/>
-                    <Label Content="Run Code" VerticalAlignment="Center" Foreground="LightGray"/>
+                    <Label x:Name="lRunCode" Content="Run Code" VerticalAlignment="Center" Foreground="LightGray"/>
                 </StackPanel>
             </Button>
         </StackPanel>
 
         <StackPanel Grid.Row="1" Background="#7A7A7A">
-            <TextBox x:Name="tbEditor" Height="525" Background="Transparent" BorderThickness="0" FontSize="15" Foreground="Black"/>
+            <TextBox x:Name="tbEditor" Height="525" Background="Transparent" BorderThickness="0" FontSize="15" Foreground="Black" AcceptsReturn="True" AcceptsTab="True" TextChanged="tbEditor_TextChanged"/>
         </StackPanel>
 
         <Grid x:Name="gTermialPanel" Grid.Row="2" Height="220" Background="#616161">

@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,7 +12,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-
+using WPFLinIDE01.Core;
 using ConsoleControls = ConsoleControl.ConsoleControl;
 
 namespace WPFLinIDE01
@@ -23,9 +25,12 @@ namespace WPFLinIDE01
         private WindowsFormsHost host;
         private ConsoleControls terminal;
 
-        public ICommand Show_PowerShell { get; }
+        public ICommand ShowPowerShell_Command { get; }
+        public ICommand SaveFile_Command { get; }
+        public ICommand RunCode_Command { get; }
 
         private string currentFilePath = string.Empty;
+        private bool openFile = false;
 
         public MainWindow()
         {
@@ -42,7 +47,14 @@ namespace WPFLinIDE01
             Closing += MainWindow_Closing;
             Loaded += MainWindow_Loaded;
 
-            Show_PowerShell = new RelayCommand(ShowPowerShell);
+            ShowPowerShell_Command = new RelayCommand(ShowPowerShell);
+            SaveFile_Command = new RelayCommand(SaveFile);
+            RunCode_Command = new RelayCommand(RunCode);
+
+            lRunCode.Content = $"Run {App.Current.Properties["ProjectName"]}";
+
+            BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Resources/save.png"));
+            miSaveItem.Icon = new System.Windows.Controls.Image { Source = icon };
 
             DataContext = this;
         }
@@ -71,6 +83,11 @@ namespace WPFLinIDE01
             {
                 foreach (string folder in Directory.GetDirectories(path))
                 {
+                    if (Path.GetFileName(folder) == "bin")
+                    {
+                        continue;
+                    }
+
                     TreeViewItem folderNode = new TreeViewItem();
                     folderNode.Header = CreateHeader(Path.GetFileName(folder), true); // Indicate it's a folder
                     folderNode.Tag = folder; // Store full path for later use
@@ -170,8 +187,9 @@ namespace WPFLinIDE01
 
         private void FileNode_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            TreeViewItem treeViewItem = sender as TreeViewItem;
+            openFile = true;
 
+            TreeViewItem treeViewItem = sender as TreeViewItem;
             try
             {
                 currentFilePath = treeViewItem.Tag.ToString();
@@ -189,6 +207,7 @@ namespace WPFLinIDE01
         #endregion FileExplorer
 
         #region Commands
+
         private void ShowPowerShell(object parameter)
         {
             if (gTermialPanel.Visibility == Visibility.Collapsed)
@@ -207,6 +226,78 @@ namespace WPFLinIDE01
                 }
             }
         }
+
+        private void SaveFile(object parameter)
+        {
+            SaveFileBase();
+        }
+        private void miSave_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileBase();
+        }
+
+        private void SaveFileBase()
+        {
+
+            if (!string.IsNullOrEmpty(currentFilePath))
+            {
+                using (StreamWriter writer = new StreamWriter(currentFilePath))
+                {
+                    writer.WriteLine(tbEditor.Text);
+                }
+            }
+
+            TreeViewItem selectedItem = tvFileTree.SelectedItem as TreeViewItem;
+            if (!openFile && selectedItem != null)
+            {
+                TextBlock textBlock = Utility.FindVisualChild<TextBlock>(selectedItem);
+
+                if (textBlock.Text.EndsWith("*"))
+                {
+                    // Remove the star from the end
+                    textBlock.Text = textBlock.Text.Substring(0, textBlock.Text.Length - 1);
+                }
+            }
+            openFile = false;
+
+
+            Debug.WriteLine("Save");
+        }
+
+        private void RunCode(object parameter)
+        {
+            RunCodeBase();
+        }
+
+
+        private void btRunCode_Click(object sender, RoutedEventArgs e)
+        {
+            RunCodeBase();
+        }
+
+        private void RunCodeBase()
+        {
+            if (gTermialPanel.Visibility == Visibility.Collapsed)
+            {
+                CreateTermial();
+                gTermialPanel.Visibility = Visibility.Visible;
+            }  
+
+            Thread.Sleep(500);
+
+            string binDirectory = @$"{App.Current.Properties["ProjectPath"]}\bin\";
+
+            if (!Directory.Exists(binDirectory))
+            {
+                Directory.CreateDirectory(binDirectory);
+            }
+
+            terminal.ProcessInterface.WriteInput(@$"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe -out:""{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe"" ""{currentFilePath}""");
+            terminal.ProcessInterface.WriteInput(@$"{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe");
+            terminal.Focus();
+            terminal.InternalRichTextBox.ScrollToCaret();
+        }
+
         #endregion Commands
 
         #region Terminal
@@ -233,6 +324,7 @@ namespace WPFLinIDE01
             terminal.ProcessInterface.WriteInput($"cd {App.Current.Properties["ProjectPath"]}");
 
             terminal.IsInputEnabled = true;
+            terminal.AutoScroll = true;
             terminal.Font = new Font("Poppins", 11);
             terminal.BorderStyle = BorderStyle.FixedSingle;
 
@@ -263,26 +355,31 @@ namespace WPFLinIDE01
         }
         #endregion Terminal
 
-        private void btRunCode_Click(object sender, RoutedEventArgs e)
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-          
-            if (gTermialPanel.Visibility == Visibility.Collapsed)
+            if (sender is System.Windows.Controls.Button clickedItem)
             {
-                CreateTermial();
-                gTermialPanel.Visibility = Visibility.Visible;
+                if (clickedItem.ContextMenu != null && clickedItem.ContextMenu.IsOpen == false)
+                {
+                    clickedItem.ContextMenu.IsOpen = true;
+                }
             }
-            Thread.Sleep(500);
+            e.Handled = true;
+        }
 
-            string binDirectory = @$"{App.Current.Properties["ProjectPath"]}\bin\";
+        private void tbEditor_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TreeViewItem selectedItem = tvFileTree.SelectedItem as TreeViewItem;
+            if (!openFile && selectedItem != null)
+            {
+                TextBlock textBlock = Utility.FindVisualChild<TextBlock>(selectedItem);
 
-            if (!Directory.Exists(binDirectory))
-            { 
-                Directory.CreateDirectory(binDirectory);
+                if (textBlock != null && !textBlock.Text.EndsWith('*'))
+                {
+                    textBlock.Text += "*";
+                }
             }
-
-            terminal.ProcessInterface.WriteInput(@$"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe -out:""{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe"" ""{currentFilePath}""");
-            terminal.ProcessInterface.WriteInput(@$"{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe");
-            
+            openFile = false;
         }
     }
 }
