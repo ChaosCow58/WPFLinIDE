@@ -14,10 +14,31 @@
         <KeyBinding Key="F5" Command="{Binding RunCode_Command}"/>
     </Window.InputBindings>
 
+    <Window.Resources>
+        <Style x:Key="CustomGridSplitterStyle" TargetType="{x:Type GridSplitter}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type GridSplitter}">
+                        <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid>
+                                   <Thumb x:Name="PART_RightGripper"
+                                   Cursor="SizeWE" 
+                                    Margin="0,0,0,-750"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid Name="gMain">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="255"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -26,7 +47,7 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#5C5C5C" Grid.ColumnSpan="2">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#5C5C5C" Grid.ColumnSpan="3">
             <Button Content="File" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold" Click="MenuItem_Click">
                 <Button.ContextMenu>
                     <ContextMenu>
@@ -45,23 +66,25 @@
             </Button>
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Background="#7A7A7A">
+        <StackPanel Grid.Row="1" MinWidth="945" Background="#7A7A7A">
             <TextBox x:Name="tbEditor" Height="525" Background="Transparent" BorderThickness="0" FontSize="15" Foreground="Black" AcceptsReturn="True" AcceptsTab="True" TextChanged="tbEditor_TextChanged"/>
         </StackPanel>
 
         <Grid x:Name="gTermialPanel" Grid.Row="2" Height="220" Background="#616161">
-        
+
         </Grid>
 
-        <StackPanel Name="spFileTree" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Background="#707070">
+        <GridSplitter Grid.Column="1" Width="8" DragIncrement="1" Cursor="Hand" Style="{StaticResource CustomGridSplitterStyle}" HorizontalAlignment="Center" Margin="0,0,0,529" Grid.Row="1"/>
+
+        <StackPanel Name="spFileTree" Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" Background="#707070" MinWidth="255">
             <TreeView x:Name="tvFileTree" Height="750" Background="Transparent" FontSize="14">
                 <TreeView.Resources>
                     <ContextMenu x:Key="ItemContextMenu_Folder" Visibility="Hidden">
                         <MenuItem Header="Add" Click="ItemRenameMenuItem_Click" InputGestureText=""/>
                         <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2"/>
                         <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del"/>
-                    </ContextMenu>    
-                    
+                    </ContextMenu>
+
                     <ContextMenu x:Key="ItemContextMenu_File" Visibility="Hidden">
                         <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2"/>
                         <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del"/>

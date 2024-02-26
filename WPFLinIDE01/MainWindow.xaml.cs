@@ -160,38 +160,46 @@ namespace WPFLinIDE01
         private void Folder_Expanded(object sender, RoutedEventArgs e)
         {
             TreeViewItem folderNode = (TreeViewItem)sender;
-            if (folderNode.Items.Count == 1 && (string)folderNode.Items[0] == "*") // Lazy loading
-            {
-                folderNode.Items.Clear();
-                string path = (string)folderNode.Tag;
-                try
+            try
+            {         
+                if (folderNode.Items.Count == 1 && (string)folderNode.Items[0] == "*") // Lazy loading
                 {
-                    foreach (string folder in Directory.GetDirectories(path))
+                    folderNode.Items.Clear();
+                    string path = (string)folderNode.Tag;
+                    try
                     {
-                        TreeViewItem subFolderNode = new TreeViewItem();
-                        subFolderNode.Header = CreateHeader(Path.GetFileName(folder), true);
-                        subFolderNode.Tag = folder;
-                        subFolderNode.Items.Add("*"); // Placeholder for sub-nodes
-                        subFolderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
-                        subFolderNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
-                        subFolderNode.Selected += FileNode_Selected;
-                        folderNode.Items.Add(subFolderNode);
-                    }
+                        foreach (string folder in Directory.GetDirectories(path))
+                        {
+                            TreeViewItem subFolderNode = new TreeViewItem();
+                            subFolderNode.Header = CreateHeader(Path.GetFileName(folder), true);
+                            subFolderNode.Tag = folder;
+                            subFolderNode.Items.Add("*"); // Placeholder for sub-nodes
+                            subFolderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
+                            subFolderNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
+                            subFolderNode.Selected += FileNode_Selected;
+                            folderNode.Items.Add(subFolderNode);
+                        }
 
-                    foreach (string file in Directory.GetFiles(path))
+                        foreach (string file in Directory.GetFiles(path))
+                        {
+                            TreeViewItem fileNode = new TreeViewItem();
+                            fileNode.Header = CreateHeader(Path.GetFileName(file), false);
+                            fileNode.Tag = file; // Store full path for later use
+                            fileNode.MouseDoubleClick += FileNode_MouseDown;
+                            fileNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
+                            fileNode.Selected += FileNode_Selected;
+                            folderNode.Items.Add(fileNode);
+                        }
+                    }
+                    catch (UnauthorizedAccessException ex)
                     {
-                        TreeViewItem fileNode = new TreeViewItem();
-                        fileNode.Header = CreateHeader(Path.GetFileName(file), false);
-                        fileNode.MouseDoubleClick += FileNode_MouseDown;
-                        fileNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
-                        fileNode.Selected += FileNode_Selected;
-                        folderNode.Items.Add(fileNode);
+                        System.Windows.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
-                catch (UnauthorizedAccessException ex)
-                {
-                    System.Windows.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+            }
+            catch (InvalidCastException ex)
+            { 
+                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -331,8 +339,14 @@ namespace WPFLinIDE01
                 Directory.CreateDirectory(binDirectory);
             }
 
-            terminal.ProcessInterface.WriteInput(@$"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe -out:""{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe"" ""{currentFilePath}""");
-            terminal.ProcessInterface.WriteInput(@$"{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe");
+            terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe' '{currentFilePath}'");
+
+            terminal.ProcessInterface.OnProcessOutput += (sender, args) => 
+            {
+                Debug.WriteLine(args.Content.Contains("error") ? "Error" : "No Error");
+            };
+            
+            terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe'");
             terminal.Focus();
             terminal.InternalRichTextBox.ScrollToCaret();
         }
@@ -360,7 +374,7 @@ namespace WPFLinIDE01
             terminal.ProcessInterface.StartProcess(process.StartInfo);
             terminal.OnConsoleInput += Terminal_OnConsoleInput;
 
-            terminal.ProcessInterface.WriteInput($"cd {App.Current.Properties["ProjectPath"]}");
+            terminal.ProcessInterface.WriteInput($"cd \"{App.Current.Properties["ProjectPath"]}\"");
 
             terminal.IsInputEnabled = true;
             terminal.AutoScroll = true;
@@ -390,6 +404,10 @@ namespace WPFLinIDE01
                     process.Kill();
                     terminal.Dispose();
                 }
+            }
+            else if (args.Content == "clear" || args.Content == "cls")
+            {
+                terminal.ClearOutput();
             }
         }
         #endregion Terminal
