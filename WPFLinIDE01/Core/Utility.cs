@@ -29,14 +29,5 @@ namespace WPFLinIDE01.Core
             }
             return null;
         }
-        public static TreeViewItem GetSelectedTreeViewItem(TreeView treeView)
-        {
-            DependencyObject obj = treeView.SelectedItem as DependencyObject;
-            while (obj != null && obj.GetType() != typeof(TreeViewItem))
-            {
-                obj = VisualTreeHelper.GetParent(obj);
-            }
-            return obj as TreeViewItem;
-        }
     }
 }
