@@ -12,14 +12,16 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using WPFLinIDE01.Core;
+
 using ConsoleControls = ConsoleControl.ConsoleControl;
+
+using WPFLinIDE01.Core;
 
 namespace WPFLinIDE01
 {
     public partial class MainWindow : Window
     {
-        HomePage homePage;
+        private HomePage homePage;
 
         private Process process;
         private WindowsFormsHost host;
@@ -93,6 +95,8 @@ namespace WPFLinIDE01
                     folderNode.Tag = folder; // Store full path for later use
                     folderNode.Items.Add("*"); // Placeholder to show expand/collapse arrow
                     folderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
+                    folderNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
+                    folderNode.Selected += FileNode_Selected;
                     parentNode.Items.Add(folderNode);
                 }
                 foreach (string file in Directory.GetFiles(path))
@@ -101,6 +105,8 @@ namespace WPFLinIDE01
                     fileNode.Header = CreateHeader(Path.GetFileName(file), false); // Indicate it's a folder
                     fileNode.Tag = file; // Store full path for later use
                     fileNode.MouseDoubleClick += FileNode_MouseDown;
+                    fileNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_File");
+                    fileNode.Selected += FileNode_Selected;
                     parentNode.Items.Add(fileNode);
                 }
             }
@@ -167,6 +173,8 @@ namespace WPFLinIDE01
                         subFolderNode.Tag = folder;
                         subFolderNode.Items.Add("*"); // Placeholder for sub-nodes
                         subFolderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
+                        subFolderNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
+                        subFolderNode.Selected += FileNode_Selected;
                         folderNode.Items.Add(subFolderNode);
                     }
 
@@ -175,6 +183,8 @@ namespace WPFLinIDE01
                         TreeViewItem fileNode = new TreeViewItem();
                         fileNode.Header = CreateHeader(Path.GetFileName(file), false);
                         fileNode.MouseDoubleClick += FileNode_MouseDown;
+                        fileNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
+                        fileNode.Selected += FileNode_Selected;
                         folderNode.Items.Add(fileNode);
                     }
                 }
@@ -183,6 +193,35 @@ namespace WPFLinIDE01
                     System.Windows.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void FileNode_Selected(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem treeViewItem = (TreeViewItem)tvFileTree.SelectedItem;
+
+            if (treeViewItem != null) 
+            {
+                if (Path.HasExtension(Path.GetFileName(treeViewItem.Tag.ToString())))
+                {
+                    if (Mouse.RightButton == MouseButtonState.Pressed)
+                    {
+                        ContextMenu context = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_File");
+                        if (context != null)
+                        {
+                            context.Visibility = Visibility.Visible;
+                        }
+                    }
+                }
+                else 
+                {
+                    ContextMenu context = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
+                    if (context != null)
+                    {
+                        context.Visibility = Visibility.Visible;
+                    }
+                }
+            }
+            e.Handled = true;
         }
 
         private void FileNode_MouseDown(object sender, MouseButtonEventArgs e)
@@ -380,6 +419,25 @@ namespace WPFLinIDE01
                 }
             }
             openFile = false;
+        }
+
+        private void ItemDeleteMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ItemRenameMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ContextMenu context = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_File");
+            ContextMenu context1 = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
+
+            context.Visibility = Visibility.Hidden;
+            context1.Visibility = Visibility.Hidden;
         }
     }
 }
