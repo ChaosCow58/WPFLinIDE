@@ -14,11 +14,19 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 using ConsoleControls = ConsoleControl.ConsoleControl;
+using Newtonsoft.Json;
 
 using WPFLinIDE01.Core;
 
 namespace WPFLinIDE01
 {
+    public static class Item
+    {
+        public static string ruleId { get; set; }
+        public static string level { get; set; }
+        public static string message { get; set; }
+    }
+
     public partial class MainWindow : Window
     {
         private HomePage homePage;
@@ -343,20 +351,48 @@ namespace WPFLinIDE01
             Thread.Sleep(500);
 
             string binDirectory = @$"{App.Current.Properties["ProjectPath"]}\bin\";
+            string errorLogDir = @$"{binDirectory}Logs\{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.json";
 
             if (!Directory.Exists(binDirectory))
             {
                 Directory.CreateDirectory(binDirectory);
+            } 
+            
+            if (!Directory.Exists(errorLogDir))
+            {
+                Directory.CreateDirectory(errorLogDir);
             }
 
-            terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe' '{currentFilePath}'");
+            // TODO make a checkbox for unsafe mode use -unsafe if true -errorendlocation
+            terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDir}' '{currentFilePath}'");
 
-            terminal.ProcessInterface.OnProcessOutput += (sender, args) =>
+            Thread.Sleep(200);
+
+            dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(errorLogDir));
+
+            foreach (dynamic obj in data.runs) 
             {
-                Debug.WriteLine(args.Content.Contains("error") ? "Error" : "No Error");
-            };
+                if (obj.results.Count == 0)
+                {
+                    Item.ruleId = null;
+                    Item.level = null;
+                    Item.message = null;
+                    break;
+                }
+                foreach (dynamic result in obj.results)
+                { 
+                    Item.ruleId = result.ruleId;
+                    Item.level = result.level;
+                    Item.message = result.message;
+                }
+            }
+            
 
-            terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe'");
+            if (string.IsNullOrEmpty(Item.level))
+            { 
+               terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe'");
+            }
+
             terminal.Focus();
             terminal.InternalRichTextBox.ScrollToCaret();
         }

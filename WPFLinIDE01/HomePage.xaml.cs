@@ -66,6 +66,7 @@ namespace WPFLinIDE01
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "Assets"));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "Resources"));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "bin"));
+                Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, @"bin\Logs"));
 
                 FileStream basicFile = File.Create(Path.Combine(diretoryPath.FullName, "Program.cs"));
 
