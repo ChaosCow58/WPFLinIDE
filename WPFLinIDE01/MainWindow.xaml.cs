@@ -55,7 +55,7 @@ namespace WPFLinIDE01
 
             lRunCode.Content = $"Run {App.Current.Properties["ProjectName"]}";
 
-            BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Resources/save.png"));
+            BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/save.png"));
             miSaveItem.Icon = new System.Windows.Controls.Image { Source = icon };
 
             DataContext = this;
@@ -136,7 +136,7 @@ namespace WPFLinIDE01
             if (isFolder)
             {
                 System.Windows.Controls.Image image = new System.Windows.Controls.Image();
-                image.Source = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Resources/folder.png")); // Set your folder icon path here
+                image.Source = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/folder.png")); // Set your folder icon path here
                 image.Width = 16;
                 image.Height = 16;
                 panel.Children.Add(image);
@@ -144,7 +144,7 @@ namespace WPFLinIDE01
             else
             {
                 System.Windows.Controls.Image image = new System.Windows.Controls.Image();
-                image.Source = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Resources/file.png"));
+                image.Source = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/file.png"));
                 image.Width = 16;
                 image.Height = 16;
                 panel.Children.Add(image);
@@ -161,7 +161,7 @@ namespace WPFLinIDE01
         {
             TreeViewItem folderNode = (TreeViewItem)sender;
             try
-            {         
+            {
                 if (folderNode.Items.Count == 1 && (string)folderNode.Items[0] == "*") // Lazy loading
                 {
                     folderNode.Items.Clear();
@@ -198,7 +198,7 @@ namespace WPFLinIDE01
                 }
             }
             catch (InvalidCastException ex)
-            { 
+            {
                 Debug.WriteLine(ex.Message);
             }
         }
@@ -207,7 +207,7 @@ namespace WPFLinIDE01
         {
             TreeViewItem treeViewItem = (TreeViewItem)tvFileTree.SelectedItem;
 
-            if (treeViewItem != null) 
+            if (treeViewItem != null)
             {
                 if (Path.HasExtension(Path.GetFileName(treeViewItem.Tag.ToString())))
                 {
@@ -220,7 +220,7 @@ namespace WPFLinIDE01
                         }
                     }
                 }
-                else 
+                else
                 {
                     ContextMenu context = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
                     if (context != null)
@@ -271,6 +271,15 @@ namespace WPFLinIDE01
                     process.Kill();
                     terminal.Dispose();
                 }
+            }
+
+            if (gsTerminalSplitter.Visibility == Visibility.Collapsed)
+            {
+                gsTerminalSplitter.Visibility = Visibility.Visible;
+            }
+            else if (gsTerminalSplitter.Visibility == Visibility.Visible)
+            {
+                gsTerminalSplitter.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -324,11 +333,12 @@ namespace WPFLinIDE01
 
         private void RunCodeBase()
         {
-            if (gTermialPanel.Visibility == Visibility.Collapsed)
+            if (gTermialPanel.Visibility == Visibility.Collapsed && gsTerminalSplitter.Visibility == Visibility.Collapsed)
             {
                 CreateTermial();
                 gTermialPanel.Visibility = Visibility.Visible;
-            }  
+                gsTerminalSplitter.Visibility = Visibility.Visible;
+            }
 
             Thread.Sleep(500);
 
@@ -341,11 +351,11 @@ namespace WPFLinIDE01
 
             terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe' '{currentFilePath}'");
 
-            terminal.ProcessInterface.OnProcessOutput += (sender, args) => 
+            terminal.ProcessInterface.OnProcessOutput += (sender, args) =>
             {
                 Debug.WriteLine(args.Content.Contains("error") ? "Error" : "No Error");
             };
-            
+
             terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(currentFilePath)}.exe'");
             terminal.Focus();
             terminal.InternalRichTextBox.ScrollToCaret();
@@ -424,6 +434,47 @@ namespace WPFLinIDE01
             e.Handled = true;
         }
 
+        private int previousLineCount = 0;
+        private int highestLineNumberDisplayed = 0;
+
+        private void UpdateLineNumbers()
+        {
+            int lineCount = tbEditor.LineCount;
+
+            if (lineCount >= previousLineCount)
+            {
+                tbLineNumbers.Text = "";
+
+                for (int i = 1; i <= lineCount; i++)
+                {
+                    tbLineNumbers.Text += i + "\n";
+                }
+
+                previousLineCount = lineCount;
+                highestLineNumberDisplayed = lineCount;
+            }
+            else if (lineCount < previousLineCount)
+            {
+                if (tbEditor.VerticalOffset + tbEditor.ViewportHeight >= tbEditor.ExtentHeight)
+                {
+                    // If the highest line number displayed is still visible
+                    tbLineNumbers.Text = "";
+
+                    for (int i = 1; i <= lineCount; i++)
+                    {
+                        tbLineNumbers.Text += i + "\n";
+                    }
+
+                    previousLineCount = lineCount;
+                    highestLineNumberDisplayed = lineCount;
+                }
+                else
+                {
+                    // Refresh line numbers
+                    highestLineNumberDisplayed = int.MaxValue;
+                }
+            }
+        }
         private void tbEditor_TextChanged(object sender, TextChangedEventArgs e)
         {
             TreeViewItem selectedItem = tvFileTree.SelectedItem as TreeViewItem;
@@ -437,6 +488,7 @@ namespace WPFLinIDE01
                 }
             }
             openFile = false;
+            UpdateLineNumbers();
         }
 
         private void ItemDeleteMenuItem_Click(object sender, RoutedEventArgs e)
@@ -456,6 +508,28 @@ namespace WPFLinIDE01
 
             context.Visibility = Visibility.Hidden;
             context1.Visibility = Visibility.Hidden;
+        }
+
+        private void tbEditor_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            // If scrolling down and the text editor can scroll further
+            if (e.Delta < 0 && tbEditor.VerticalOffset < tbEditor.ExtentHeight - tbEditor.ViewportHeight)
+            {
+                // Synchronize the vertical offset of the line numbers with the text editor
+                svLineNumbers.ScrollToVerticalOffset(svLineNumbers.VerticalOffset - e.Delta);
+            }
+            // If scrolling up and the text editor can scroll further
+            else if (e.Delta > 0 && tbEditor.VerticalOffset > 0)
+            {
+                // Synchronize the vertical offset of the line numbers with the text editor
+                svLineNumbers.ScrollToVerticalOffset(svLineNumbers.VerticalOffset - e.Delta);
+            }
+        }
+
+
+        private void svEditors_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            svLineNumbers.ScrollToVerticalOffset(e.VerticalOffset);
         }
     }
 }

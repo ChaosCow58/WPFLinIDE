@@ -24,8 +24,8 @@
     <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\file.png" />
-    <Resource Include="Resources\folder.png" />
-    <Resource Include="Resources\save.png" />
+    <Resource Include="Assets\file.png" />
+    <Resource Include="Assets\folder.png" />
+    <Resource Include="Assets\save.png" />
   </ItemGroup>
 </Project>

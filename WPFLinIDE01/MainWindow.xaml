@@ -14,26 +14,6 @@
         <KeyBinding Key="F5" Command="{Binding RunCode_Command}"/>
     </Window.InputBindings>
 
-    <Window.Resources>
-        <Style x:Key="CustomGridSplitterStyle" TargetType="{x:Type GridSplitter}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type GridSplitter}">
-                        <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                            <Grid>
-                                   <Thumb x:Name="PART_RightGripper"
-                                   Cursor="SizeWE" 
-                                    Margin="0,0,0,-750"/>
-                            </Grid>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-
     <Grid Name="gMain">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto"/>
@@ -43,7 +23,8 @@
 
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
-            <RowDefinition/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
@@ -66,31 +47,43 @@
             </Button>
         </StackPanel>
 
-        <StackPanel Grid.Row="1" MinWidth="945" Background="#7A7A7A">
-            <TextBox x:Name="tbEditor" Height="525" Background="Transparent" BorderThickness="0" FontSize="15" Foreground="Black" AcceptsReturn="True" AcceptsTab="True" TextChanged="tbEditor_TextChanged"/>
-        </StackPanel>
+        <Grid Grid.Row="1" MinWidth="945" Height="auto" Background="#7A7A7A">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <Grid x:Name="gTermialPanel" Grid.Row="2" Height="220" Background="#616161">
+            <ScrollViewer x:Name="svLineNumbers" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
+                <TextBlock x:Name="tbLineNumbers" VerticalAlignment="Top" Height="auto" MinHeight="520" Background="#7A7A7A" Foreground="White" TextAlignment="Right" FontSize="15" Padding="5"/>
+            </ScrollViewer>
 
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Hidden" ScrollChanged="svEditors_ScrollChanged" VerticalContentAlignment="Top" HorizontalContentAlignment="Left" VerticalAlignment="Top">
+                <TextBox x:Name="tbEditor" Grid.Column="1" Height="auto" MinHeight="520" VerticalContentAlignment="Top" HorizontalContentAlignment="Left" VerticalAlignment="Top" HorizontalAlignment="Left" 
+                         Background="Transparent" BorderThickness="0" FontSize="15" Foreground="Black" AcceptsReturn="True" AcceptsTab="True" 
+                         TextChanged="tbEditor_TextChanged" PreviewMouseWheel="tbEditor_PreviewMouseWheel"/>
+            </ScrollViewer>
         </Grid>
 
-        <GridSplitter Grid.Column="1" Width="8" DragIncrement="1" Cursor="Hand" Style="{StaticResource CustomGridSplitterStyle}" HorizontalAlignment="Center" Margin="0,0,0,529" Grid.Row="1"/>
+        <GridSplitter x:Name="gsTerminalSplitter" Grid.Row="2" DragIncrement="1" Style="{StaticResource CustomGridSplitterStyleHorizontal}" ResizeDirection="Rows" />
 
-        <StackPanel Name="spFileTree" Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" Background="#707070" MinWidth="255">
-            <TreeView x:Name="tvFileTree" Height="750" Background="Transparent" FontSize="14">
-                <TreeView.Resources>
-                    <ContextMenu x:Key="ItemContextMenu_Folder" Visibility="Hidden">
-                        <MenuItem Header="Add" Click="ItemRenameMenuItem_Click" InputGestureText=""/>
-                        <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2"/>
-                        <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del"/>
-                    </ContextMenu>
+        <Grid x:Name="gTermialPanel" Grid.Row="3" Height="auto" MinHeight="220" Background="#616161"/>
 
-                    <ContextMenu x:Key="ItemContextMenu_File" Visibility="Hidden">
-                        <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2"/>
-                        <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del"/>
-                    </ContextMenu>
-                </TreeView.Resources>
-            </TreeView>
-        </StackPanel>
+        <GridSplitter Grid.Column="1" Grid.Row="1" Width="8" DragIncrement="1" Style="{StaticResource CustomGridSplitterStyleVertical}" HorizontalAlignment="Center" Margin="0,0,0,529"/>
+
+        <TreeView x:Name="tvFileTree" Grid.Column="2" Grid.Row="1" Grid.RowSpan="3" Height="auto" Background="#707070" FontSize="14" MinWidth="230">
+            <TreeView.Resources>
+                <ContextMenu x:Key="ItemContextMenu_Folder" Visibility="Hidden">
+                    <MenuItem Header="Add" Click="ItemRenameMenuItem_Click" InputGestureText=""/>
+                    <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2"/>
+                    <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del"/>
+                </ContextMenu>
+
+                <ContextMenu x:Key="ItemContextMenu_File" Visibility="Hidden">
+                    <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2"/>
+                    <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del"/>
+                </ContextMenu>
+            </TreeView.Resources>
+        </TreeView>
+        
     </Grid>
 </Window>
