@@ -17,6 +17,7 @@ using ConsoleControls = ConsoleControl.ConsoleControl;
 using Newtonsoft.Json;
 
 using WPFLinIDE01.Core;
+using System.Windows.Documents;
 
 namespace WPFLinIDE01
 {
@@ -93,7 +94,7 @@ namespace WPFLinIDE01
             {
                 foreach (string folder in Directory.GetDirectories(path))
                 {
-                    if (Path.GetFileName(folder) == "bin")
+                    if (Path.GetFileName(folder) == "bin" || Path.GetFileName(folder) == "obj")
                     {
                         continue;
                     }
@@ -159,6 +160,7 @@ namespace WPFLinIDE01
             }
 
             TextBlock headerText = new TextBlock();
+            headerText.Foreground = System.Windows.Media.Brushes.White;
             headerText.Text = text;
             panel.Children.Add(headerText);
 
@@ -248,7 +250,7 @@ namespace WPFLinIDE01
             try
             {
                 currentFilePath = treeViewItem.Tag.ToString();
-
+                 
                 tbEditor.Text = File.ReadAllText(currentFilePath);
             }
             catch (Exception ex)
@@ -351,7 +353,8 @@ namespace WPFLinIDE01
             Thread.Sleep(500);
 
             string binDirectory = @$"{App.Current.Properties["ProjectPath"]}\bin\";
-            string errorLogDir = @$"{binDirectory}Logs\{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.json";
+            string errorLogDir = @$"{binDirectory}Logs\";
+            string errorLogDirJson = @$"{binDirectory}Logs\{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.json";
 
             if (!Directory.Exists(binDirectory))
             {
@@ -364,11 +367,12 @@ namespace WPFLinIDE01
             }
 
             // TODO make a checkbox for unsafe mode use -unsafe if true -errorendlocation
-            terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDir}' '{currentFilePath}'");
+            terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDirJson}' '{currentFilePath}'");
 
             Thread.Sleep(200);
 
-            dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(errorLogDir));
+         
+           dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(errorLogDirJson));
 
             foreach (dynamic obj in data.runs) 
             {
@@ -470,63 +474,6 @@ namespace WPFLinIDE01
             e.Handled = true;
         }
 
-        private int previousLineCount = 0;
-        private int highestLineNumberDisplayed = 0;
-
-        private void UpdateLineNumbers()
-        {
-            int lineCount = tbEditor.LineCount;
-
-            if (lineCount >= previousLineCount)
-            {
-                tbLineNumbers.Text = "";
-
-                for (int i = 1; i <= lineCount; i++)
-                {
-                    tbLineNumbers.Text += i + "\n";
-                }
-
-                previousLineCount = lineCount;
-                highestLineNumberDisplayed = lineCount;
-            }
-            else if (lineCount < previousLineCount)
-            {
-                if (tbEditor.VerticalOffset + tbEditor.ViewportHeight >= tbEditor.ExtentHeight)
-                {
-                    // If the highest line number displayed is still visible
-                    tbLineNumbers.Text = "";
-
-                    for (int i = 1; i <= lineCount; i++)
-                    {
-                        tbLineNumbers.Text += i + "\n";
-                    }
-
-                    previousLineCount = lineCount;
-                    highestLineNumberDisplayed = lineCount;
-                }
-                else
-                {
-                    // Refresh line numbers
-                    highestLineNumberDisplayed = int.MaxValue;
-                }
-            }
-        }
-        private void tbEditor_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TreeViewItem selectedItem = tvFileTree.SelectedItem as TreeViewItem;
-            if (!openFile && selectedItem != null)
-            {
-                TextBlock textBlock = Utility.FindVisualChild<TextBlock>(selectedItem);
-
-                if (textBlock != null && !textBlock.Text.EndsWith('*'))
-                {
-                    textBlock.Text += "*";
-                }
-            }
-            openFile = false;
-            UpdateLineNumbers();
-        }
-
         private void ItemDeleteMenuItem_Click(object sender, RoutedEventArgs e)
         {
 
@@ -546,26 +493,19 @@ namespace WPFLinIDE01
             context1.Visibility = Visibility.Hidden;
         }
 
-        private void tbEditor_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        private void tbEditor_TextChanged(object sender, EventArgs e)
         {
-            // If scrolling down and the text editor can scroll further
-            if (e.Delta < 0 && tbEditor.VerticalOffset < tbEditor.ExtentHeight - tbEditor.ViewportHeight)
+            TreeViewItem selectedItem = tvFileTree.SelectedItem as TreeViewItem;
+            if (!openFile && selectedItem != null)
             {
-                // Synchronize the vertical offset of the line numbers with the text editor
-                svLineNumbers.ScrollToVerticalOffset(svLineNumbers.VerticalOffset - e.Delta);
-            }
-            // If scrolling up and the text editor can scroll further
-            else if (e.Delta > 0 && tbEditor.VerticalOffset > 0)
-            {
-                // Synchronize the vertical offset of the line numbers with the text editor
-                svLineNumbers.ScrollToVerticalOffset(svLineNumbers.VerticalOffset - e.Delta);
-            }
-        }
+                TextBlock textBlock = Utility.FindVisualChild<TextBlock>(selectedItem);
 
-
-        private void svEditors_ScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            svLineNumbers.ScrollToVerticalOffset(e.VerticalOffset);
+                if (textBlock != null && !textBlock.Text.EndsWith('*'))
+                {
+                    textBlock.Text += "*";
+                }
+            }
+            openFile = false;
         }
     }
 }

@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFLinIDE01"
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         mc:Ignorable="d"
         Title="IDE" Height="800" Width="1200" WindowStartupLocation="CenterScreen" MouseDown="Window_MouseDown">
 
@@ -47,22 +48,10 @@
             </Button>
         </StackPanel>
 
-        <Grid Grid.Row="1" MinWidth="945" Height="auto" Background="#7A7A7A">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <ScrollViewer x:Name="svLineNumbers" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
-                <TextBlock x:Name="tbLineNumbers" VerticalAlignment="Top" Height="auto" MinHeight="520" Background="#7A7A7A" Foreground="White" TextAlignment="Right" FontSize="15" Padding="5"/>
-            </ScrollViewer>
-
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Hidden" ScrollChanged="svEditors_ScrollChanged" VerticalContentAlignment="Top" HorizontalContentAlignment="Left" VerticalAlignment="Top">
-                <TextBox x:Name="tbEditor" Grid.Column="1" Height="auto" MinHeight="520" VerticalContentAlignment="Top" HorizontalContentAlignment="Left" VerticalAlignment="Top" HorizontalAlignment="Left" 
-                         Background="Transparent" BorderThickness="0" FontSize="15" Foreground="Black" AcceptsReturn="True" AcceptsTab="True" 
-                         TextChanged="tbEditor_TextChanged" PreviewMouseWheel="tbEditor_PreviewMouseWheel"/>
-            </ScrollViewer>
-        </Grid>
+        <StackPanel Grid.Row="1" MinWidth="945" Height="auto" Background="#7A7A7A">
+            <avalonedit:TextEditor x:Name="tbEditor" Grid.Column="1" Height="auto" MinHeight="520" ShowLineNumbers="True" HorizontalScrollBarVisibility="Disabled"
+                     Background="Transparent" BorderThickness="0" FontSize="15" Foreground="Black" LineNumbersForeground="White" TextChanged="tbEditor_TextChanged"/>
+        </StackPanel>
 
         <GridSplitter x:Name="gsTerminalSplitter" Grid.Row="2" DragIncrement="1" Style="{StaticResource CustomGridSplitterStyleHorizontal}" ResizeDirection="Rows" />
 
