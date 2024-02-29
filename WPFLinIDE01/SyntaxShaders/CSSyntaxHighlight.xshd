@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SyntaxDefinition name="C#" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
-	<Color name="Comment" foreground="LightGreen" />
-	<Color name="String" foreground="DarkRed" />
-	<Color name="Keyword" foreground="Blue" />
-	<Color name="Type" foreground="Cyan" />
-	<Color name="Loop" foreground="Purple" />
+	<Color name="Comment" foreground="#57A64A" />
+	<Color name="String" foreground="#D69D85" />
+	<Color name="Keyword" foreground="#569CD6" />
+	<Color name="Loop" foreground="#D8A0DF"/>
+	<Color name="Type" foreground="#569CD6" />
 	<Color name="Preprocessor" foreground="LightGray"/>
+	<Color name="FunctionCalls" foreground="#E6E6B1"/>
 
 	<RuleSet>
 		<!-- Comments -->
@@ -27,14 +28,12 @@
 			<!-- Control flow keywords -->
 			<Word>if</Word>
 			<Word>else</Word>
-			<Word>while</Word>
-			<Word>for</Word>
 			<Word>do</Word>
-			<Word>switch</Word>
-			<Word>case</Word>
+			<Word>default</Word>
 
 			<!-- Class and namespace keywords -->
 			<Word>class</Word>
+			<Word>struct </Word>
 			<Word>namespace</Word>
 			<Word>interface</Word>
 			<Word>public</Word>
@@ -52,11 +51,6 @@
 			<Word>volatile</Word>
 			<Word>extern</Word>
 			<Word>unsafe</Word>
-			
-			<!-- Exception handling keywords -->
-			<Word>try</Word>
-			<Word>catch</Word>
-			<Word>finally</Word>
 
 			<!-- Miscellaneous keywords -->
 			<Word>using</Word>
@@ -75,6 +69,12 @@
 			<Word>async</Word>
 			<Word>await</Word>
 			<Word>nameof</Word>
+			<Word>typeof</Word>
+			<Word>get</Word>
+			<Word>set</Word>
+			<Word>params</Word>
+			<Word>ref</Word>
+			<Word>out</Word>
 		</Keywords>
 		
 		<!-- Preprocessor Directives -->
@@ -98,6 +98,17 @@
 			<Word>continue</Word>
 			<Word>yield</Word>
 			<Word>return</Word>
+			<Word>for</Word>
+			<Word>foreach</Word>
+			<Word>while</Word>
+
+			<Word>switch</Word>
+			<Word>case</Word>
+
+			<!-- Exception handling keywords -->
+			<Word>try</Word>
+			<Word>catch</Word>
+			<Word>finally</Word>
 		</Keywords>
 
 		<!-- Data Types -->
@@ -129,5 +140,14 @@
 			<Word>object</Word>
 			<Word>dynamic</Word>
 		</Keywords>
+
+		<Rule color="FunctionCalls">
+			(?&lt;=\.)\w+(?=\()
+		</Rule>
+
+		<Rule color="FunctionCalls">
+			\b\w+(?=\()
+		</Rule>
+		
 	</RuleSet>
 </SyntaxDefinition>

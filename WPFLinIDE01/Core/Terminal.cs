@@ -15,7 +15,7 @@ using ConsoleControls = ConsoleControl.ConsoleControl;
 
 namespace WPFLinIDE01.Core
 {
-
+   
     public class Terminal
     {
         public Process process;

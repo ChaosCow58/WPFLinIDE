@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using ICSharpCode.AvalonEdit.Highlighting;
 
 using WPFLinIDE01.Core;
+using ICSharpCode.AvalonEdit;
 
 
 namespace WPFLinIDE01
@@ -66,6 +67,16 @@ namespace WPFLinIDE01
 
             BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/save.png"));
             miSaveItem.Icon = new Image { Source = icon };
+
+            TextEditorOptions options = new TextEditorOptions();
+            options.IndentationSize = 3;
+            options.ConvertTabsToSpaces = true;
+            options.HighlightCurrentLine = true;
+            options.EnableHyperlinks = true;
+            options.EnableImeSupport = true;
+            options.RequireControlModifierForHyperlinkClick = true;
+            options.CutCopyWholeLine = true;
+            tbEditor.Options = options;
 
         }
 

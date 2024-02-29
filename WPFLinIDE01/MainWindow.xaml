@@ -29,7 +29,7 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#5C5C5C" Grid.ColumnSpan="3">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#1E1E1E" Grid.ColumnSpan="3">
             <Button Content="File" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold" Click="MenuItem_Click">
                 <Button.ContextMenu>
                     <ContextMenu>
@@ -48,7 +48,7 @@
             </Button>
         </StackPanel>
 
-        <StackPanel Grid.Row="1" MinWidth="945" Height="auto" Background="#7A7A7A" VerticalAlignment="Stretch">
+        <StackPanel Grid.Row="1" MinWidth="945" Height="auto" Background="#1E1E1E" VerticalAlignment="Stretch">
             <avalonedit:TextEditor x:Name="tbEditor" Grid.Column="1" Height="auto" MinHeight="520" ShowLineNumbers="True" HorizontalScrollBarVisibility="Disabled"
                      Background="Transparent" VerticalAlignment="Stretch" BorderThickness="0" FontSize="15" SyntaxHighlighting="{Binding SyntaxHighlighting}" Foreground="White" 
                      LineNumbersForeground="White" TextChanged="tbEditor_TextChanged"/>
@@ -56,11 +56,11 @@
 
         <GridSplitter x:Name="gsTerminalSplitter" Height="8" Grid.Row="2" DragIncrement="1" Style="{StaticResource CustomGridSplitterStyleHorizontal}" ResizeDirection="Rows" />
 
-        <Grid x:Name="gTermialPanel" Grid.Row="3" Height="auto" MinHeight="220" Background="#616161"/>
+        <Grid x:Name="gTermialPanel" Grid.Row="3" Height="auto" MinHeight="220" Background="#1E1E1E"/>
 
         <GridSplitter Grid.Column="1" Grid.Row="1" MinHeight="8" DragIncrement="1" Style="{StaticResource CustomGridSplitterStyleVertical}" HorizontalAlignment="Center" Margin="0,0,0,529"/>
 
-        <TreeView x:Name="tvFileTree" Grid.Column="2" Grid.Row="1" Grid.RowSpan="3" Height="auto" Background="#707070" FontSize="14" MinWidth="230">
+        <TreeView x:Name="tvFileTree" Grid.Column="2" Grid.Row="1" Grid.RowSpan="3" Height="auto" Background="#1E1E1E" FontSize="14" MinWidth="230">
             <TreeView.Resources>
                 <ContextMenu x:Key="ItemContextMenu_Folder" Visibility="Hidden">
                     <MenuItem Header="Add" Click="ItemRenameMenuItem_Click" InputGestureText=""/>
