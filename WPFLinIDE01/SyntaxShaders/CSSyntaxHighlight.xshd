@@ -7,6 +7,7 @@
 	<Color name="Type" foreground="#569CD6" />
 	<Color name="Preprocessor" foreground="LightGray"/>
 	<Color name="FunctionCalls" foreground="#E6E6B1"/>
+	<Color name="Generic" foreground="LightGreen"/>
 
 	<RuleSet>
 		<!-- Comments -->
@@ -109,6 +110,10 @@
 			<Word>try</Word>
 			<Word>catch</Word>
 			<Word>finally</Word>
+		</Keywords>
+
+		<Keywords color="Generic">
+			<Word>T</Word>
 		</Keywords>
 
 		<!-- Data Types -->
