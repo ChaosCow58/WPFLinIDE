@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
-using System.Windows.Forms.Integration;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-
-using ConsoleControls = ConsoleControl.ConsoleControl;
 
 using Newtonsoft.Json;
 
@@ -34,20 +28,16 @@ namespace WPFLinIDE01
     public partial class MainWindow : Window
     {
         private HomePage homePage;
-        private SyntaxHighlight syntax;
 
-        private Process process;
-        private WindowsFormsHost host;
-        private ConsoleControls terminal;
+        private FileExporler fileExporler;
+        private Terminal cmdTerminal;
+        private SyntaxHighlight syntax;
 
         public ICommand ShowPowerShell_Command { get; }
         public ICommand SaveFile_Command { get; }
         public ICommand RunCode_Command { get; }
 
         public IHighlightingDefinition SyntaxHighlighting { get; set; }
-
-        private string currentFilePath = string.Empty;
-        private bool openFile = false;
 
         public MainWindow()
         {
@@ -61,6 +51,8 @@ namespace WPFLinIDE01
                 Close();
             }
 
+            fileExporler = new FileExporler(tvFileTree, tbEditor);
+            cmdTerminal = new Terminal(gTermialPanel);
             syntax = new SyntaxHighlight();
 
             Closing += MainWindow_Closing;
@@ -73,204 +65,28 @@ namespace WPFLinIDE01
             lRunCode.Content = $"Run {App.Current.Properties["ProjectName"]}";
 
             BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/save.png"));
-            miSaveItem.Icon = new System.Windows.Controls.Image { Source = icon };
+            miSaveItem.Icon = new Image { Source = icon };
 
         }
 
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (process != null && !process.HasExited)
+            if (cmdTerminal.process != null && !cmdTerminal.process.HasExited)
             {
-                process.Kill();
-                terminal.Dispose();
+                cmdTerminal.process.Kill();
+                cmdTerminal.terminal.Dispose();
             }
         }
         
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            DisplayFileSystem();
-            CreateTermial();
+            fileExporler.DisplayFileSystem();
+            cmdTerminal.CreateTermial();
+
             SyntaxHighlighting = syntax.LoadSyntaxHighlightDefintion("CSSyntaxHighlight.xshd");
             DataContext = this;
         }
-
-        #region FileExplorer
-
-        private void PopulateTreeView(string path, TreeViewItem parentNode)
-        {
-            try
-            {
-                foreach (string folder in Directory.GetDirectories(path))
-                {
-                    if (Path.GetFileName(folder) == "bin" || Path.GetFileName(folder) == "obj")
-                    {
-                        continue;
-                    }
-
-                    TreeViewItem folderNode = new TreeViewItem();
-                    folderNode.Header = CreateHeader(Path.GetFileName(folder), true); // Indicate it's a folder
-                    folderNode.Tag = folder; // Store full path for later use
-                    folderNode.Items.Add("*"); // Placeholder to show expand/collapse arrow
-                    folderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
-                    folderNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
-                    folderNode.Selected += FileNode_Selected;
-                    parentNode.Items.Add(folderNode);
-                }
-                foreach (string file in Directory.GetFiles(path))
-                {
-                    TreeViewItem fileNode = new TreeViewItem();
-                    fileNode.Header = CreateHeader(Path.GetFileName(file), false); // Indicate it's a folder
-                    fileNode.Tag = file; // Store full path for later use
-                    fileNode.MouseDoubleClick += FileNode_MouseDown;
-                    fileNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_File");
-                    fileNode.Selected += FileNode_Selected;
-                    parentNode.Items.Add(fileNode);
-                }
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                System.Windows.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Environment.Exit(1);
-            }
-        }
-
-        private void DisplayFileSystem()
-        {
-            string rootFolder = App.Current.Properties["ProjectPath"].ToString();
-
-            TreeViewItem rootNode = new TreeViewItem();
-            rootNode.Header = CreateHeader(App.Current.Properties["ProjectName"].ToString(), true); // Indicate it's a folder
-            tvFileTree.Items.Add(rootNode);
-
-            PopulateTreeView(rootFolder, rootNode);
-        }
-
-        private StackPanel CreateHeader(string text, bool isFolder)
-        {
-            StackPanel panel = new StackPanel();
-            panel.Orientation = System.Windows.Controls.Orientation.Horizontal;
-
-            if (isFolder)
-            {
-                System.Windows.Controls.Image image = new System.Windows.Controls.Image();
-                image.Source = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/folder.png")); // Set your folder icon path here
-                image.Width = 16;
-                image.Height = 16;
-                panel.Children.Add(image);
-            }
-            else
-            {
-                System.Windows.Controls.Image image = new System.Windows.Controls.Image();
-                image.Source = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/file.png"));
-                image.Width = 16;
-                image.Height = 16;
-                panel.Children.Add(image);
-            }
-
-            TextBlock headerText = new TextBlock();
-            headerText.Foreground = System.Windows.Media.Brushes.White;
-            headerText.Text = text;
-            panel.Children.Add(headerText);
-
-            return panel;
-        }
-
-        private void Folder_Expanded(object sender, RoutedEventArgs e)
-        {
-            TreeViewItem folderNode = (TreeViewItem)sender;
-            try
-            {
-                if (folderNode.Items.Count == 1 && (string)folderNode.Items[0] == "*") // Lazy loading
-                {
-                    folderNode.Items.Clear();
-                    string path = (string)folderNode.Tag;
-                    try
-                    {
-                        foreach (string folder in Directory.GetDirectories(path))
-                        {
-                            TreeViewItem subFolderNode = new TreeViewItem();
-                            subFolderNode.Header = CreateHeader(Path.GetFileName(folder), true);
-                            subFolderNode.Tag = folder;
-                            subFolderNode.Items.Add("*"); // Placeholder for sub-nodes
-                            subFolderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
-                            subFolderNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
-                            subFolderNode.Selected += FileNode_Selected;
-                            folderNode.Items.Add(subFolderNode);
-                        }
-
-                        foreach (string file in Directory.GetFiles(path))
-                        {
-                            TreeViewItem fileNode = new TreeViewItem();
-                            fileNode.Header = CreateHeader(Path.GetFileName(file), false);
-                            fileNode.Tag = file; // Store full path for later use
-                            fileNode.MouseDoubleClick += FileNode_MouseDown;
-                            fileNode.ContextMenu = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
-                            fileNode.Selected += FileNode_Selected;
-                            folderNode.Items.Add(fileNode);
-                        }
-                    }
-                    catch (UnauthorizedAccessException ex)
-                    {
-                        System.Windows.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-            }
-            catch (InvalidCastException ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-        }
-
-        private void FileNode_Selected(object sender, RoutedEventArgs e)
-        {
-            TreeViewItem treeViewItem = (TreeViewItem)tvFileTree.SelectedItem;
-
-            if (treeViewItem != null)
-            {
-                if (Path.HasExtension(Path.GetFileName(treeViewItem.Tag.ToString())))
-                {
-                    if (Mouse.RightButton == MouseButtonState.Pressed)
-                    {
-                        ContextMenu context = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_File");
-                        if (context != null)
-                        {
-                            context.Visibility = Visibility.Visible;
-                        }
-                    }
-                }
-                else
-                {
-                    ContextMenu context = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
-                    if (context != null)
-                    {
-                        context.Visibility = Visibility.Visible;
-                    }
-                }
-            }
-            e.Handled = true;
-        }
-
-        private void FileNode_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            openFile = true;
-
-            TreeViewItem treeViewItem = sender as TreeViewItem;
-            try
-            {
-                currentFilePath = treeViewItem.Tag.ToString();
-                 
-                tbEditor.Text = File.ReadAllText(currentFilePath);
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-        }
-
-
-        #endregion FileExplorer
 
         #region Commands
 
@@ -278,17 +94,17 @@ namespace WPFLinIDE01
         {
             if (gTermialPanel.Visibility == Visibility.Collapsed)
             {
-                CreateTermial();
+                cmdTerminal.CreateTermial();
                 gTermialPanel.Visibility = Visibility.Visible;
-                terminal.Focus();
+                cmdTerminal.terminal.Focus();
             }
             else if (gTermialPanel.Visibility == Visibility.Visible)
             {
                 gTermialPanel.Visibility = Visibility.Collapsed;
-                if (process != null && !process.HasExited)
+                if (cmdTerminal.process != null && !cmdTerminal.process.HasExited)
                 {
-                    process.Kill();
-                    terminal.Dispose();
+                    cmdTerminal.process.Kill();
+                    cmdTerminal.terminal.Dispose();
                 }
             }
 
@@ -314,9 +130,9 @@ namespace WPFLinIDE01
         private void SaveFileBase()
         {
 
-            if (!string.IsNullOrEmpty(currentFilePath))
+            if (!string.IsNullOrEmpty(fileExporler.currentFilePath))
             {
-                using (StreamWriter writer = new StreamWriter(currentFilePath))
+                using (StreamWriter writer = new StreamWriter(fileExporler.currentFilePath))
                 {
                     writer.WriteLine(tbEditor.Text);
                     writer.Close();
@@ -324,7 +140,7 @@ namespace WPFLinIDE01
             }
 
             TreeViewItem selectedItem = tvFileTree.SelectedItem as TreeViewItem;
-            if (!openFile && selectedItem != null)
+            if (!fileExporler.openFile && selectedItem != null)
             {
                 TextBlock textBlock = Utility.FindVisualChild<TextBlock>(selectedItem);
 
@@ -334,7 +150,7 @@ namespace WPFLinIDE01
                     textBlock.Text = textBlock.Text.Substring(0, textBlock.Text.Length - 1);
                 }
             }
-            openFile = false;
+            fileExporler.openFile = false;
 
 
             Debug.WriteLine("Save");
@@ -355,12 +171,10 @@ namespace WPFLinIDE01
         {
             if (gTermialPanel.Visibility == Visibility.Collapsed && gsTerminalSplitter.Visibility == Visibility.Collapsed)
             {
-                CreateTermial();
+                cmdTerminal.CreateTermial();
                 gTermialPanel.Visibility = Visibility.Visible;
                 gsTerminalSplitter.Visibility = Visibility.Visible;
             }
-
-
 
             Thread.Sleep(500);
 
@@ -380,7 +194,7 @@ namespace WPFLinIDE01
 
 
             // TODO make a checkbox for unsafe mode use -unsafe if true -errorendlocation
-            terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDirJson}' '{currentFilePath}'");
+            cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDirJson}' '{fileExporler.currentFilePath}'");
 
             Thread.Sleep(200);
 
@@ -423,84 +237,25 @@ namespace WPFLinIDE01
                     // If an IOException occurs, the file is still being used by another process
                     // Retry after a short delay
                     attempt++;
-                    System.Threading.Thread.Sleep(70); // Adjust delay as needed
+                    Thread.Sleep(70); // Adjust delay as needed
                 }
             }
 
 
             if (string.IsNullOrEmpty(Item.level))
-            { 
-               terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe'");
+            {
+                cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe'");
             }
 
-            terminal.Focus();
-            terminal.InternalRichTextBox.ScrollToCaret();
+            cmdTerminal.terminal.Focus();
+            cmdTerminal.terminal.InternalRichTextBox.ScrollToCaret();
         }
 
     #endregion Commands
 
-    #region Terminal
-    private void CreateTermial()
-        {
-            process = new Process();
-            process.StartInfo = new ProcessStartInfo()
-            {
-                FileName = "powershell.exe",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true,
-                RedirectStandardError = true,
-                RedirectStandardInput = true,
-            };
-
-            terminal = new ConsoleControls();
-
-            process.Start();
-
-            terminal.ProcessInterface.StartProcess(process.StartInfo);
-            terminal.OnConsoleInput += Terminal_OnConsoleInput;
-
-            terminal.ProcessInterface.WriteInput($"cd \"{App.Current.Properties["ProjectPath"]}\"");
-
-            terminal.IsInputEnabled = true;
-            terminal.AutoScroll = true;
-            terminal.Font = new Font("Poppins", 11);
-            terminal.BorderStyle = BorderStyle.FixedSingle;
-
-            host = new WindowsFormsHost();
-            host.Child = terminal;
-
-            gTermialPanel.Children.Add(host);
-        }
-
-        private void Terminal_OnConsoleInput(object sender, ConsoleControl.ConsoleEventArgs args)
-        {
-            if (args.Content == "exit")
-            {
-                // Close the terminal
-                Dispatcher.Invoke(() =>
-                {
-                    gTermialPanel.Children.Remove(host);
-                    gTermialPanel.Visibility = Visibility.Collapsed;
-                });
-
-                // Kill the process
-                if (!process.HasExited)
-                {
-                    process.Kill();
-                    terminal.Dispose();
-                }
-            }
-            else if (args.Content == "clear" || args.Content == "cls")
-            {
-                terminal.ClearOutput();
-            }
-        }
-        #endregion Terminal
-
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is System.Windows.Controls.Button clickedItem)
+            if (sender is Button clickedItem)
             {
                 if (clickedItem.ContextMenu != null && clickedItem.ContextMenu.IsOpen == false)
                 {
@@ -532,7 +287,7 @@ namespace WPFLinIDE01
         private void tbEditor_TextChanged(object sender, EventArgs e)
         {
             TreeViewItem selectedItem = tvFileTree.SelectedItem as TreeViewItem;
-            if (!openFile && selectedItem != null)
+            if (!fileExporler.openFile && selectedItem != null)
             {
                 TextBlock textBlock = Utility.FindVisualChild<TextBlock>(selectedItem);
 
@@ -541,7 +296,7 @@ namespace WPFLinIDE01
                     textBlock.Text += "*";
                 }
             }
-            openFile = false;
+            fileExporler.openFile = false;
         }
     }
 }
