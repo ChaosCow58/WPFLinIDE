@@ -48,11 +48,12 @@
             </Button>
         </StackPanel>
 
-        <StackPanel Grid.Row="1" MinWidth="945" Background="#7A7A7A" VerticalAlignment="Stretch">
-            <!-- Set the TextEditor to fill the StackPanel -->
-            <avalonedit:TextEditor x:Name="tbEditor" Height="auto" MinHeight="520" ShowLineNumbers="True" HorizontalScrollBarVisibility="Disabled"
-             Background="Transparent" BorderThickness="0" FontSize="15" Foreground="Black" LineNumbersForeground="White" TextChanged="tbEditor_TextChanged"/>
+        <StackPanel Grid.Row="1" MinWidth="945" Height="auto" Background="#7A7A7A" VerticalAlignment="Stretch">
+            <avalonedit:TextEditor x:Name="tbEditor" Grid.Column="1" Height="auto" MinHeight="520" ShowLineNumbers="True" HorizontalScrollBarVisibility="Disabled"
+                     Background="Transparent" VerticalAlignment="Stretch" BorderThickness="0" FontSize="15" SyntaxHighlighting="{Binding SyntaxHighlighting}" Foreground="White" 
+                     LineNumbersForeground="White" TextChanged="tbEditor_TextChanged"/>
         </StackPanel>
+
         <GridSplitter x:Name="gsTerminalSplitter" Height="8" Grid.Row="2" DragIncrement="1" Style="{StaticResource CustomGridSplitterStyleHorizontal}" ResizeDirection="Rows" />
 
         <Grid x:Name="gTermialPanel" Grid.Row="3" Height="auto" MinHeight="220" Background="#616161"/>

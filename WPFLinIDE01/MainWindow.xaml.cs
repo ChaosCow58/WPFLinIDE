@@ -14,11 +14,13 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 using ConsoleControls = ConsoleControl.ConsoleControl;
+
 using Newtonsoft.Json;
 
+using ICSharpCode.AvalonEdit.Highlighting;
+
 using WPFLinIDE01.Core;
-using System.Windows.Documents;
-using System.Threading.Tasks;
+
 
 namespace WPFLinIDE01
 {
@@ -32,6 +34,7 @@ namespace WPFLinIDE01
     public partial class MainWindow : Window
     {
         private HomePage homePage;
+        private SyntaxHighlight syntax;
 
         private Process process;
         private WindowsFormsHost host;
@@ -40,6 +43,8 @@ namespace WPFLinIDE01
         public ICommand ShowPowerShell_Command { get; }
         public ICommand SaveFile_Command { get; }
         public ICommand RunCode_Command { get; }
+
+        public IHighlightingDefinition SyntaxHighlighting { get; set; }
 
         private string currentFilePath = string.Empty;
         private bool openFile = false;
@@ -56,6 +61,8 @@ namespace WPFLinIDE01
                 Close();
             }
 
+            syntax = new SyntaxHighlight();
+
             Closing += MainWindow_Closing;
             Loaded += MainWindow_Loaded;
 
@@ -68,7 +75,6 @@ namespace WPFLinIDE01
             BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/save.png"));
             miSaveItem.Icon = new System.Windows.Controls.Image { Source = icon };
 
-            DataContext = this;
         }
 
 
@@ -80,11 +86,13 @@ namespace WPFLinIDE01
                 terminal.Dispose();
             }
         }
-
+        
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             DisplayFileSystem();
             CreateTermial();
+            SyntaxHighlighting = syntax.LoadSyntaxHighlightDefintion("CSSyntaxHighlight.xshd");
+            DataContext = this;
         }
 
         #region FileExplorer

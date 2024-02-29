@@ -12,14 +12,17 @@
     <None Remove="Resources\file.png" />
     <None Remove="Resources\folder.png" />
     <None Remove="Resources\save.png" />
+    <None Remove="SyntaxShaders\CSSyntaxHighlight.xshd" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="SyntaxShaders\CSSyntaxHighlight.xshd" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
     <PackageReference Include="ConsoleControl" Version="1.3.0" />
-    <PackageReference Include="Json.NET" Version="1.0.33" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

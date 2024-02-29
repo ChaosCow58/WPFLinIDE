@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SyntaxDefinition name="C#" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+	<Color name="Comment" foreground="LightGreen" />
+	<Color name="String" foreground="DarkRed" />
+	<Color name="Keyword" foreground="Blue" />
+	<Color name="Type" foreground="Cyan" />
+	<Color name="Loop" foreground="Purple" />
+	<Color name="Preprocessor" foreground="LightGray"/>
+
+	<RuleSet>
+		<!-- Comments -->
+		<Span color="Comment" begin="//" />
+		<Span color="Comment" multiline="true" begin="/\*" end="\*/" />
+
+		<!-- Strings -->
+		<Span color="String">
+			<Begin>"</Begin>
+			<End>"</End>
+			<RuleSet>
+				<!-- Nested span for escape sequences -->
+				<Span begin="\\" end="." />
+			</RuleSet>
+		</Span>
+
+		<!-- Keywords -->
+		<Keywords color="Keyword">
+			<!-- Control flow keywords -->
+			<Word>if</Word>
+			<Word>else</Word>
+			<Word>while</Word>
+			<Word>for</Word>
+			<Word>do</Word>
+			<Word>switch</Word>
+			<Word>case</Word>
+
+			<!-- Class and namespace keywords -->
+			<Word>class</Word>
+			<Word>namespace</Word>
+			<Word>interface</Word>
+			<Word>public</Word>
+			<Word>private</Word>
+			<Word>protected</Word>
+			<Word>static</Word>
+			<Word>new</Word>
+			
+			<!-- Modifiers -->
+			<Word>abstract</Word>
+			<Word>virtual</Word>
+			<Word>override</Word>
+			<Word>sealed</Word>
+			<Word>readonly</Word>
+			<Word>volatile</Word>
+			<Word>extern</Word>
+			<Word>unsafe</Word>
+			
+			<!-- Exception handling keywords -->
+			<Word>try</Word>
+			<Word>catch</Word>
+			<Word>finally</Word>
+
+			<!-- Miscellaneous keywords -->
+			<Word>using</Word>
+			<Word>true</Word>
+			<Word>false</Word>
+			<Word>const</Word>
+			<Word>null</Word>
+			<Word>var</Word>
+			<Word>void</Word>
+			<Word>this</Word>
+			<Word>delegate</Word>
+			<Word>event</Word>
+			<Word>lock</Word>
+			<Word>checked</Word>
+			<Word>unchecked</Word>
+			<Word>async</Word>
+			<Word>await</Word>
+			<Word>nameof</Word>
+		</Keywords>
+		
+		<!-- Preprocessor Directives -->
+		<Keywords color="Preprocessor">
+			<Word>#define</Word>
+			<Word>#undef</Word>
+			<Word>#if</Word>
+			<Word>#else</Word>
+			<Word>#elif</Word>
+			<Word>#endif</Word>
+			<Word>#warning</Word>
+			<Word>#error</Word>
+			<Word>#region</Word>
+			<Word>#endregion</Word>
+			<Word>#pragma</Word>
+		</Keywords>
+
+		<!-- Loop Keywords -->
+		<Keywords color="Loop">
+			<Word>break</Word>
+			<Word>continue</Word>
+			<Word>yield</Word>
+			<Word>return</Word>
+		</Keywords>
+
+		<!-- Data Types -->
+		<Keywords color="Type">
+			<!-- Numeric types -->
+			<Word>int</Word>
+			<Word>long</Word>
+			<Word>short</Word>
+			<Word>byte</Word>
+			<Word>uint</Word>
+			<Word>ulong</Word>
+			<Word>ushort</Word>
+			<Word>sbyte</Word>
+			<Word>float</Word>
+			<Word>double</Word>
+			<Word>decimal</Word>
+
+			<!-- Boolean type -->
+			<Word>bool</Word>
+
+			<!-- Character type -->
+			<Word>char</Word>
+
+			<!-- String type -->
+			<Word>string</Word>
+
+			<!-- Enum and object types -->
+			<Word>enum</Word>
+			<Word>object</Word>
+			<Word>dynamic</Word>
+		</Keywords>
+	</RuleSet>
+</SyntaxDefinition>

@@ -10,7 +10,6 @@
         "dependencies": {
           "AvalonEdit": "6.3.0.90",
           "ConsoleControl": "1.3.0",
-          "Json.Net": "1.0.33",
           "Microsoft.CSharp": "4.7.0",
           "Microsoft.Management.Infrastructure": "3.0.0",
           "Newtonsoft.Json": "13.0.3",
@@ -45,14 +44,6 @@
           "lib/net40/ConsoleControlAPI.dll": {
             "assemblyVersion": "1.3.0.0",
             "fileVersion": "1.3.0.0"
-          }
-        }
-      },
-      "Json.Net/1.0.33": {
-        "runtime": {
-          "lib/netstandard2.0/Json.Net.dll": {
-            "assemblyVersion": "1.0.33.1",
-            "fileVersion": "1.0.33.1"
           }
         }
       },
@@ -192,13 +183,6 @@
       "sha512": "sha512-swpP3ijJo7DJpN7mY8XIp+eddIDeEWrzCARgVle5Wn6xnsNiFStSGabrb2+NBfmztjPH1vwGMJscs3eBXLYzLw==",
       "path": "consolecontrolapi/1.3.0",
       "hashPath": "consolecontrolapi.1.3.0.nupkg.sha512"
-    },
-    "Json.Net/1.0.33": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-5tE+db6BqhRAvITIVBeRsQorLGshPExfm4FmMRvWWAfs4RxeTbFFj2PIEybwmMW0qR30HKkXDYhq0YkDK2Jtxw==",
-      "path": "json.net/1.0.33",
-      "hashPath": "json.net.1.0.33.nupkg.sha512"
     },
     "Microsoft.CSharp/4.7.0": {
       "type": "package",
