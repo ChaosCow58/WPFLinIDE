@@ -107,11 +107,13 @@ namespace WPFLinIDE01
             {
                 cmdTerminal.CreateTermial();
                 gTermialPanel.Visibility = Visibility.Visible;
+                tbEditor.MaxHeight = 500;
                 cmdTerminal.terminal.Focus();
             }
             else if (gTermialPanel.Visibility == Visibility.Visible)
             {
                 gTermialPanel.Visibility = Visibility.Collapsed;
+                tbEditor.MaxHeight = 720;
                 if (cmdTerminal.process != null && !cmdTerminal.process.HasExited)
                 {
                     cmdTerminal.process.Kill();
@@ -185,6 +187,8 @@ namespace WPFLinIDE01
                 cmdTerminal.CreateTermial();
                 gTermialPanel.Visibility = Visibility.Visible;
                 gsTerminalSplitter.Visibility = Visibility.Visible;
+                tbEditor.MaxHeight = 500;
+                
             }
 
             Thread.Sleep(500);

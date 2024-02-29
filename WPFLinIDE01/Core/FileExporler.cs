@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -57,6 +58,8 @@ namespace WPFLinIDE01.Core
                     fileNode.MouseDoubleClick += FileNode_MouseDown;
                     fileNode.ContextMenu = (ContextMenu)treeview.FindResource("ItemContextMenu_File");
                     fileNode.Selected += FileNode_Selected;
+                    fileNode.LostFocus += FileNode_LostFocus;
+                    fileNode.GotFocus += FileNode_GotFocus;
                     parentNode.Items.Add(fileNode);
                 }
             }
@@ -65,6 +68,22 @@ namespace WPFLinIDE01.Core
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(1);
             }
+        }
+
+        private void FileNode_GotFocus(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem treeViewItem = (TreeViewItem)sender;
+
+            StackPanel stack = Utility.FindVisualChild<StackPanel>(treeViewItem);
+            stack.Background = Brushes.Gray;
+        }
+
+        private void FileNode_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem treeViewItem = (TreeViewItem)sender;
+
+            StackPanel stack = Utility.FindVisualChild<StackPanel>(treeViewItem);
+            stack.Background = Brushes.DarkGray;
         }
 
         public void DisplayFileSystem()
@@ -139,6 +158,8 @@ namespace WPFLinIDE01.Core
                             fileNode.MouseDoubleClick += FileNode_MouseDown;
                             fileNode.ContextMenu = (ContextMenu)treeview.FindResource("ItemContextMenu_Folder");
                             fileNode.Selected += FileNode_Selected;
+                            fileNode.LostFocus += FileNode_LostFocus;
+                            fileNode.GotFocus += FileNode_GotFocus;
                             folderNode.Items.Add(fileNode);
                         }
                     }
