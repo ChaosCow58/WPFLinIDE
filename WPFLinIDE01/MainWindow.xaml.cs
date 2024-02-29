@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 
 using WPFLinIDE01.Core;
 using System.Windows.Documents;
+using System.Threading.Tasks;
 
 namespace WPFLinIDE01
 {
@@ -310,6 +311,7 @@ namespace WPFLinIDE01
                 using (StreamWriter writer = new StreamWriter(currentFilePath))
                 {
                     writer.WriteLine(tbEditor.Text);
+                    writer.Close();
                 }
             }
 
@@ -350,6 +352,8 @@ namespace WPFLinIDE01
                 gsTerminalSplitter.Visibility = Visibility.Visible;
             }
 
+
+
             Thread.Sleep(500);
 
             string binDirectory = @$"{App.Current.Properties["ProjectPath"]}\bin\";
@@ -366,31 +370,55 @@ namespace WPFLinIDE01
                 Directory.CreateDirectory(errorLogDir);
             }
 
+
             // TODO make a checkbox for unsafe mode use -unsafe if true -errorendlocation
             terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDirJson}' '{currentFilePath}'");
 
             Thread.Sleep(200);
 
-         
-           dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(errorLogDirJson));
+            int maxAttempts = 10;
+            int attempt = 0;
+            bool fileReady = false;
 
-            foreach (dynamic obj in data.runs) 
+            while (!fileReady && attempt < maxAttempts)
             {
-                if (obj.results.Count == 0)
+                try
                 {
-                    Item.ruleId = null;
-                    Item.level = null;
-                    Item.message = null;
-                    break;
+                    // Attempt to read the file
+                    dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(errorLogDirJson));
+
+                    // If reading succeeds, set fileReady to true to break out of the loop
+                    fileReady = true;
+
+                    foreach (dynamic obj in data.runs)
+                    {
+                        if (obj.results.Count == 0)
+                        {
+                            // Handle the case when there are no results
+                            Item.ruleId = null;
+                            Item.level = null;
+                            Item.message = null;
+                            break;
+                        }
+
+                        foreach (dynamic result in obj.results)
+                        {
+                            // Process each result
+                            Item.ruleId = result.ruleId;
+                            Item.level = result.level;
+                            Item.message = result.message;
+                        }
+                    }
                 }
-                foreach (dynamic result in obj.results)
-                { 
-                    Item.ruleId = result.ruleId;
-                    Item.level = result.level;
-                    Item.message = result.message;
+                catch (IOException)
+                {
+                    // If an IOException occurs, the file is still being used by another process
+                    // Retry after a short delay
+                    attempt++;
+                    System.Threading.Thread.Sleep(70); // Adjust delay as needed
                 }
             }
-            
+
 
             if (string.IsNullOrEmpty(Item.level))
             { 
@@ -401,10 +429,10 @@ namespace WPFLinIDE01
             terminal.InternalRichTextBox.ScrollToCaret();
         }
 
-        #endregion Commands
+    #endregion Commands
 
-        #region Terminal
-        private void CreateTermial()
+    #region Terminal
+    private void CreateTermial()
         {
             process = new Process();
             process.StartInfo = new ProcessStartInfo()
