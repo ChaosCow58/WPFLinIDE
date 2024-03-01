@@ -17,6 +17,8 @@ using WPFLinIDE01.Core;
 using ICSharpCode.AvalonEdit;
 
 
+#pragma warning disable CA1416
+
 namespace WPFLinIDE01
 {
     public static class Item
@@ -37,6 +39,7 @@ namespace WPFLinIDE01
         public ICommand ShowPowerShell_Command { get; }
         public ICommand SaveFile_Command { get; }
         public ICommand RunCode_Command { get; }
+        public ICommand CopyLine_Command { get; }
 
         public IHighlightingDefinition SyntaxHighlighting { get; set; }
 
@@ -62,20 +65,27 @@ namespace WPFLinIDE01
             ShowPowerShell_Command = new RelayCommand(ShowPowerShell);
             SaveFile_Command = new RelayCommand(SaveFile);
             RunCode_Command = new RelayCommand(RunCode);
+            CopyLine_Command = new RelayCommand(CopyLine);
 
             lRunCode.Content = $"Run {App.Current.Properties["ProjectName"]}";
 
             BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/save.png"));
             miSaveItem.Icon = new Image { Source = icon };
 
-            TextEditorOptions options = new TextEditorOptions();
-            options.IndentationSize = 3;
-            options.ConvertTabsToSpaces = true;
-            options.HighlightCurrentLine = true;
-            options.EnableHyperlinks = true;
-            options.EnableImeSupport = true;
-            options.RequireControlModifierForHyperlinkClick = true;
-            options.CutCopyWholeLine = true;
+           
+
+            tbEditor.InputBindings.Clear();
+
+            TextEditorOptions options = new TextEditorOptions() 
+            { 
+                IndentationSize = 3,
+                ConvertTabsToSpaces = true,
+                HighlightCurrentLine = true,
+                EnableHyperlinks = true,
+                RequireControlModifierForHyperlinkClick = true,
+                EnableImeSupport = true,
+                CutCopyWholeLine = true
+            };
             tbEditor.Options = options;
 
         }
@@ -94,8 +104,9 @@ namespace WPFLinIDE01
         {
             fileExporler.DisplayFileSystem();
             cmdTerminal.CreateTermial();
-
             SyntaxHighlighting = syntax.LoadSyntaxHighlightDefintion("CSSyntaxHighlight.xshd");
+
+
             DataContext = this;
         }
 
@@ -173,7 +184,6 @@ namespace WPFLinIDE01
         {
             RunCodeBase();
         }
-
 
         private void btRunCode_Click(object sender, RoutedEventArgs e)
         {
@@ -264,6 +274,14 @@ namespace WPFLinIDE01
 
             cmdTerminal.terminal.Focus();
             cmdTerminal.terminal.InternalRichTextBox.ScrollToCaret();
+        }
+
+        private void CopyLine(object parameter)
+        {
+            int currentLineNumber = tbEditor.TextArea.Caret.Line;
+
+            string currentLineText = tbEditor.Document.GetText(tbEditor.Document.GetLineByNumber(currentLineNumber));
+            tbEditor.Document.Insert(tbEditor.Document.GetLineByNumber(currentLineNumber).EndOffset, "\n" + currentLineText);
         }
 
     #endregion Commands

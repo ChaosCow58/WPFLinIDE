@@ -12,6 +12,7 @@
     <Window.InputBindings>
         <KeyBinding Key="C" Modifiers="Ctrl+Alt" Command="{Binding ShowPowerShell_Command}"/>
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveFile_Command}"/>
+        <KeyBinding Key="D" Modifiers="Ctrl" Command="{Binding CopyLine_Command}"/>
         <KeyBinding Key="F5" Command="{Binding RunCode_Command}"/>
     </Window.InputBindings>
 
