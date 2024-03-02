@@ -6,10 +6,5 @@
         xmlns:local="clr-namespace:WPFLinIDE01"
         mc:Ignorable="d"
         Title="Create/Open a Project" Height="450" Width="500" Background="Gray" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
-    <Grid>
-        <StackPanel VerticalAlignment="Center">
-            <Button Content="Open Project" FontSize="17" FontWeight="SemiBold" Height="70" Width="190" Margin="10" Click="btOpen_Click"/>
-            <Button Content="Create a New Project" FontSize="17" FontWeight="SemiBold" Height="70" Width="190" Click="btNewProject_Click"/>
-        </StackPanel>
-    </Grid>
+    <DockPanel x:Name="ccHomePanel" Visibility="Visible"/>
 </Window>

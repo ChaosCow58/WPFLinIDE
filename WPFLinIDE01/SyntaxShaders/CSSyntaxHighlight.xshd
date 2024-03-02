@@ -52,6 +52,7 @@
 			<Word>volatile</Word>
 			<Word>extern</Word>
 			<Word>unsafe</Word>
+			<Word>partial</Word>
 
 			<!-- Miscellaneous keywords -->
 			<Word>using</Word>

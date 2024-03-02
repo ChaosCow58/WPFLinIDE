@@ -1,17 +1,17 @@
-﻿<Window x:Class="WPFLinIDE01.NameProject"
+﻿<UserControl x:Class="WPFLinIDE01.NameProjectControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WPFLinIDE01"
              mc:Ignorable="d" 
-             Height="180" Width="480" Background="Gray" WindowStyle="None" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+             Height="450" Width="500" Background="Gray">
     <Grid>
         <StackPanel VerticalAlignment="Center">
             <Label Content="Name the Project:" FontWeight="SemiBold" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <TextBox x:Name="tbProjectName" Height="30" Margin="8" VerticalContentAlignment="Center" FontSize="15"/>
-            <Button Content="Save" FontWeight="SemiBold" FontSize="16" Height="30" Width="425" Click="btSave_Click"/>
+            <Button Content="Create" FontWeight="SemiBold" FontSize="16" Height="30" Width="425" Click="btCreate_Click"/>
             <Button Content="Back" FontWeight="SemiBold" FontSize="16" Height="30" Width="425" Margin="0,5,0,0" Click="btBack_Click"/>
         </StackPanel>
     </Grid>
-</Window>
+</UserControl>
