@@ -12,9 +12,10 @@ using System.Windows.Media.Imaging;
 using Newtonsoft.Json;
 
 using ICSharpCode.AvalonEdit.Highlighting;
-
 using WPFLinIDE01.Core;
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Document;
+using System.Windows.Media;
 
 
 #pragma warning disable CA1416
@@ -40,8 +41,11 @@ namespace WPFLinIDE01
         public ICommand SaveFile_Command { get; }
         public ICommand RunCode_Command { get; }
         public ICommand CopyLine_Command { get; }
+        public ICommand MoveLineUp_Command { get; }
+        public ICommand MoveLineDown_Command { get; }
 
         public IHighlightingDefinition SyntaxHighlighting { get; set; }
+        private TextEditor tbEditor;
 
         public MainWindow()
         {
@@ -55,8 +59,10 @@ namespace WPFLinIDE01
                 Close();
             }
 
-            fileExporler = new FileExporler(tvFileTree, tbEditor);
+            fileExporler = new FileExporler(tvFileTree, tcFileTabs);
+            tbEditor = fileExporler.editor;
             cmdTerminal = new Terminal(gTermialPanel);
+
             syntax = new SyntaxHighlight();
 
             Closing += MainWindow_Closing;
@@ -66,28 +72,19 @@ namespace WPFLinIDE01
             SaveFile_Command = new RelayCommand(SaveFile);
             RunCode_Command = new RelayCommand(RunCode);
             CopyLine_Command = new RelayCommand(CopyLine);
+            MoveLineUp_Command = new RelayCommand(MoveLineUp);
+            MoveLineDown_Command = new RelayCommand(MoveLineDown);
 
             lRunCode.Content = $"Run {App.Current.Properties["ProjectName"]}";
 
             BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/save.png"));
             miSaveItem.Icon = new Image { Source = icon };
 
-           
 
-            tbEditor.InputBindings.Clear();
-
-            TextEditorOptions options = new TextEditorOptions() 
-            { 
-                IndentationSize = 3,
-                ConvertTabsToSpaces = true,
-                HighlightCurrentLine = true,
-                EnableHyperlinks = true,
-                RequireControlModifierForHyperlinkClick = true,
-                EnableImeSupport = true,
-                CutCopyWholeLine = true
-            };
-            tbEditor.Options = options;
-
+            //for (int i = 0; i < tbEditor.TextArea.CommandBindings.Count; i++)
+            //{
+            //    Debug.WriteLine($"Command: {tbEditor.TextArea.CommandBindings[i]}");
+            //}
         }
 
 
@@ -284,7 +281,52 @@ namespace WPFLinIDE01
             tbEditor.Document.Insert(tbEditor.Document.GetLineByNumber(currentLineNumber).EndOffset, "\n" + currentLineText);
         }
 
-    #endregion Commands
+        private void MoveLineUp(object parameter)
+        {
+            int caretOffset = tbEditor.CaretOffset;
+            int lineNumber = tbEditor.Document.GetLineByOffset(caretOffset).LineNumber;
+
+            if (lineNumber > 1)
+            {
+                DocumentLine line = tbEditor.Document.GetLineByNumber(lineNumber);
+                string lineText = tbEditor.Document.GetText(line);
+                DocumentLine prevLine = tbEditor.Document.GetLineByNumber(lineNumber - 1);
+
+                tbEditor.Document.Remove(line.Offset, line.TotalLength);
+                tbEditor.Document.Insert(prevLine.Offset, lineText + Environment.NewLine);
+
+                // Move caret to the beginning of the moved line
+                tbEditor.CaretOffset = prevLine.Offset;
+            }
+        }
+
+        private void MoveLineDown(object parameter) 
+        {
+            int caretOffset = tbEditor.CaretOffset;
+            int lineNumber = tbEditor.Document.GetLineByOffset(caretOffset).LineNumber;
+            int totalLines = tbEditor.Document.LineCount;
+
+            if (lineNumber < totalLines - 1)
+            {
+                var line = tbEditor.Document.GetLineByNumber(lineNumber);
+                var lineText = tbEditor.Document.GetText(line);
+                var nextLine = tbEditor.Document.GetLineByNumber(lineNumber + 1);
+
+                // Remove the newline character at the end of the lineText if it exists
+                if (lineText.EndsWith(Environment.NewLine))
+                {
+                    lineText = lineText.Substring(0, lineText.Length - Environment.NewLine.Length);
+                }
+
+                tbEditor.Document.Remove(line.Offset, line.TotalLength);
+                tbEditor.Document.Insert(nextLine.Offset, lineText);
+
+                // Move caret to the beginning of the moved line
+                tbEditor.CaretOffset = nextLine.Offset;
+            }
+        }
+
+        #endregion Commands
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -317,7 +359,7 @@ namespace WPFLinIDE01
             context1.Visibility = Visibility.Hidden;
         }
 
-        private void tbEditor_TextChanged(object sender, EventArgs e)
+        public void tbEditor_TextChanged(object sender, EventArgs e)
         {
             TreeViewItem selectedItem = tvFileTree.SelectedItem as TreeViewItem;
             if (!fileExporler.openFile && selectedItem != null)
@@ -331,5 +373,7 @@ namespace WPFLinIDE01
             }
             fileExporler.openFile = false;
         }
+
+    
     }
 }

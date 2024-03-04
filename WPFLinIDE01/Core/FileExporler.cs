@@ -19,15 +19,16 @@ namespace WPFLinIDE01.Core
     public class FileExporler
     {
         private TreeView treeview;
-        private TextEditor editor;
+        public TextEditor editor;
+        private TabControl tabControl;
 
         public bool openFile = false;
         public string currentFilePath = string.Empty;
 
-        public FileExporler(TreeView treeView, TextEditor textEditor) 
+        public FileExporler(TreeView treeView, TabControl tabControl) 
         { 
             this.treeview = treeView;
-            editor = textEditor;
+            this.tabControl = tabControl;
         }
 
         private void PopulateTreeView(string path, TreeViewItem parentNode)
@@ -204,22 +205,87 @@ namespace WPFLinIDE01.Core
             e.Handled = true;
         }
 
+        #pragma warning disable CA1416
         private void FileNode_MouseDown(object sender, MouseButtonEventArgs e)
         {
             openFile = true;
 
             TreeViewItem treeViewItem = sender as TreeViewItem;
+            MainWindow mainWindow = Application.Current.MainWindow as MainWindow;
             try
             {
                 currentFilePath = treeViewItem.Tag.ToString();
 
+                TextEditorOptions options = new TextEditorOptions()
+                {
+                    IndentationSize = 3,
+                    ConvertTabsToSpaces = true,
+                    HighlightCurrentLine = true,
+                    EnableHyperlinks = true,
+                    RequireControlModifierForHyperlinkClick = true,
+                    EnableImeSupport = true,
+                    CutCopyWholeLine = true
+                };
+
+                editor = new TextEditor()
+                {
+                    MaxHeight = 500,
+                    ShowLineNumbers = true,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    Background = Brushes.Transparent,
+                    BorderThickness = new Thickness(0),
+                    FontSize = 15,
+                    SyntaxHighlighting = mainWindow.SyntaxHighlighting,
+                    Foreground = Brushes.White,
+                    LineNumbersForeground = Brushes.White,
+                    Options = options
+                };
+
+                editor.TextChanged += mainWindow.tbEditor_TextChanged;
+
+                editor.TextArea.CommandBindings.RemoveAt(48); // Delete Line Command 
+
                 editor.Text = File.ReadAllText(currentFilePath);
+
+                TabItem tabItem = new TabItem() 
+                { 
+                    Header = Path.GetFileName(currentFilePath),
+                    Tag = currentFilePath,
+                    Content = editor,
+                    Background = Brushes.Gray
+                };
+                tabItem.GotFocus += TabItem_GotFocus;
+                tabItem.LostFocus += TabItem_LostFocus;
+
+                foreach(TabItem tab in tabControl.Items)
+                {
+                    if (tab.Tag.ToString() == currentFilePath)
+                    {
+                        return;
+                    }
+                }
+
+                tabControl.Items.Add(tabItem);
+                tabItem.Focus();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+        }
+
+        private void TabItem_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TabItem tabItem = (TabItem)sender;
+            tabItem.Background = Brushes.Red;
+        }
+
+        private void TabItem_GotFocus(object sender, RoutedEventArgs e)
+        {
+            TabItem tabItem = (TabItem)sender;
+            tabItem.Background = Brushes.DarkGray;
         }
     }
 }

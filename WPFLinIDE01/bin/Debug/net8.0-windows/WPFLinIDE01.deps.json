@@ -10,6 +10,7 @@
         "dependencies": {
           "AvalonEdit": "6.3.0.90",
           "ConsoleControl": "1.3.0",
+          "ICSharpCode.NRefactory": "5.5.1",
           "Microsoft.CSharp": "4.7.0",
           "Microsoft.Management.Infrastructure": "3.0.0",
           "Newtonsoft.Json": "13.0.3",
@@ -44,6 +45,29 @@
           "lib/net40/ConsoleControlAPI.dll": {
             "assemblyVersion": "1.3.0.0",
             "fileVersion": "1.3.0.0"
+          }
+        }
+      },
+      "ICSharpCode.NRefactory/5.5.1": {
+        "dependencies": {
+          "Mono.Cecil": "0.9.5.4"
+        },
+        "runtime": {
+          "lib/Net40/ICSharpCode.NRefactory.CSharp.dll": {
+            "assemblyVersion": "5.0.0.0",
+            "fileVersion": "5.5.1.0"
+          },
+          "lib/Net40/ICSharpCode.NRefactory.Cecil.dll": {
+            "assemblyVersion": "5.0.0.0",
+            "fileVersion": "5.5.1.0"
+          },
+          "lib/Net40/ICSharpCode.NRefactory.Xml.dll": {
+            "assemblyVersion": "5.0.0.0",
+            "fileVersion": "5.5.1.0"
+          },
+          "lib/Net40/ICSharpCode.NRefactory.dll": {
+            "assemblyVersion": "5.0.0.0",
+            "fileVersion": "5.5.1.0"
           }
         }
       },
@@ -119,6 +143,26 @@
           }
         }
       },
+      "Mono.Cecil/0.9.5.4": {
+        "runtime": {
+          "lib/net40/Mono.Cecil.Mdb.dll": {
+            "assemblyVersion": "0.9.5.0",
+            "fileVersion": "0.9.5.0"
+          },
+          "lib/net40/Mono.Cecil.Pdb.dll": {
+            "assemblyVersion": "0.9.5.0",
+            "fileVersion": "0.9.5.0"
+          },
+          "lib/net40/Mono.Cecil.Rocks.dll": {
+            "assemblyVersion": "0.9.5.0",
+            "fileVersion": "0.9.5.0"
+          },
+          "lib/net40/Mono.Cecil.dll": {
+            "assemblyVersion": "0.9.5.0",
+            "fileVersion": "0.9.5.0"
+          }
+        }
+      },
       "Newtonsoft.Json/13.0.3": {
         "runtime": {
           "lib/net6.0/Newtonsoft.Json.dll": {
@@ -184,6 +228,13 @@
       "path": "consolecontrolapi/1.3.0",
       "hashPath": "consolecontrolapi.1.3.0.nupkg.sha512"
     },
+    "ICSharpCode.NRefactory/5.5.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-iFnWweJykC6nHF535Qv1gYMseEWcM8/CvBMDxZWlg4ExafRg5uJm5R30GufpbzSYrxg3ry7RJ4Pnw6ghKmuqfg==",
+      "path": "icsharpcode.nrefactory/5.5.1",
+      "hashPath": "icsharpcode.nrefactory.5.5.1.nupkg.sha512"
+    },
     "Microsoft.CSharp/4.7.0": {
       "type": "package",
       "serviceable": true,
@@ -211,6 +262,13 @@
       "sha512": "sha512-uwMyWN33+iQ8Wm/n1yoPXgFoiYNd0HzJyoqSVhaQZyJfaQrJR3udgcIHjqa1qbc3lS6kvfuUMN4TrF4U4refCQ==",
       "path": "microsoft.management.infrastructure.runtime.win/3.0.0",
       "hashPath": "microsoft.management.infrastructure.runtime.win.3.0.0.nupkg.sha512"
+    },
+    "Mono.Cecil/0.9.5.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lSrFKGdaagNNm+GSDbHnYo3m31ceBk2PsszYdXFmphfTqB1fnX8lMEasSC6dYzHfiM+3PaMXEMFqgMJYFv1I8A==",
+      "path": "mono.cecil/0.9.5.4",
+      "hashPath": "mono.cecil.0.9.5.4.nupkg.sha512"
     },
     "Newtonsoft.Json/13.0.3": {
       "type": "package",

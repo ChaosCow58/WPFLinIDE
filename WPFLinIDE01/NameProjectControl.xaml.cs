@@ -1,18 +1,11 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
+using Microsoft.Win32;
+
 
 namespace WPFLinIDE01
 {
@@ -30,7 +23,7 @@ namespace WPFLinIDE01
         {
             Window window = Window.GetWindow(this);
 
-            App.Current.Properties["ProjectName"] = tbProjectName.Text;
+            App.Current.Properties["ProjectName"] = tbProjectName.Text; 
 
             if (App.Current.Properties["ProjectName"] == null)
             {

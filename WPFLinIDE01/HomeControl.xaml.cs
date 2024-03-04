@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -44,11 +45,10 @@ namespace WPFLinIDE01
             }
 
         }
-
         private void btNewProject_Click(object sender, RoutedEventArgs e)
         {
             Window window = Window.GetWindow(this);
-
+            
             if (window is HomePage homePage)
             {
                 // Access the SetUserControl method of the parent window

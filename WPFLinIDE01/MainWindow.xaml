@@ -10,10 +10,12 @@
         Background="#1E1E1E">
 
     <Window.InputBindings>
-        <KeyBinding Key="C" Modifiers="Ctrl+Alt" Command="{Binding ShowPowerShell_Command}"/>
-        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveFile_Command}"/>
-        <KeyBinding Key="D" Modifiers="Ctrl" Command="{Binding CopyLine_Command}"/>
-        <KeyBinding Key="F5" Command="{Binding RunCode_Command}"/>
+        <KeyBinding Key="C"    Modifiers="Ctrl+Alt" Command="{Binding ShowPowerShell_Command}"/>
+        <KeyBinding Key="S"    Modifiers="Ctrl"     Command="{Binding SaveFile_Command}"/>
+        <KeyBinding Key="D"    Modifiers="Ctrl"     Command="{Binding CopyLine_Command}"/>
+        <KeyBinding Key="Up"   Modifiers="Alt"      Command="{Binding MoveLineUp_Command}"/>
+        <KeyBinding Key="Down" Modifiers="Alt"      Command="{Binding MoveLineDown_Command}"/>
+        <KeyBinding Key="F5"   Modifiers=""         Command="{Binding RunCode_Command}"/>
     </Window.InputBindings>
 
     <Grid Name="gMain">
@@ -30,31 +32,35 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#1E1E1E" Grid.ColumnSpan="3">
-            <Button Content="File" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold" Click="MenuItem_Click">
-                <Button.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Name="miSaveItem" Header="Save File" Click="miSave_MenuItem_Click" Icon="" InputGestureText="Ctrl+S"/>
-                    </ContextMenu>
-                </Button.ContextMenu>
-            </Button>
-            <Button Content="Edit" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold"/>
-            <Button Content="Git" Width="60" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold"/>
-            <Border BorderBrush="DarkGray" BorderThickness="1.5,0,0,0" Height="30" CornerRadius="1"/>
-            <Button x:Name="c" Background="Transparent" BorderThickness="0" Click="btRunCode_Click">
-                <StackPanel Orientation="Horizontal" Margin="13,0,0,0">
-                    <Polygon Points="0,0 20,10 0,20" Fill="#8AE28A" VerticalAlignment="Center"/>
-                    <Label x:Name="lRunCode" Content="Run Code" VerticalAlignment="Center" Foreground="LightGray"/>
-                </StackPanel>
-            </Button>
-        </StackPanel>
+        <Border BorderBrush="Gray" BorderThickness="0,0,0,2" Grid.ColumnSpan="3"> 
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#1E1E1E" Grid.ColumnSpan="3">
+                <Menu Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold">
+                    <!--Click="MenuItem_Click"-->
+                    <MenuItem Header="File" Height="35" Width="60" Padding="15,0,0,0">
+                        <MenuItem/>
+                        <MenuItem Name="miSaveItem" Header="Save File" Foreground="Black" Click="miSave_MenuItem_Click" Icon="" InputGestureText="Ctrl+S"/>
+                    </MenuItem>
+                    <MenuItem Header="Edit" Height="35" Width="60" Padding="15,0,0,0">
 
+                    </MenuItem>
+                    <MenuItem Header="Git" Height="35" Width="60" Padding="15,0,0,0">
+
+                    </MenuItem>
+                </Menu>
+                <Border BorderBrush="DarkGray" BorderThickness="1.5,0,0,0" Height="30" CornerRadius="1"/>
+                <Button x:Name="c" Background="Transparent" BorderThickness="0" Click="btRunCode_Click">
+                    <StackPanel Orientation="Horizontal" Margin="13,0,0,0">
+                        <Polygon Points="0,0 20,10 0,20" Fill="#8AE28A" VerticalAlignment="Center"/>
+                        <Label x:Name="lRunCode" Content="Run Code" VerticalAlignment="Center" Foreground="LightGray"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+        
         <StackPanel Grid.Row="1" MinWidth="945" Background="#1E1E1E">
-            <avalonedit:TextEditor x:Name="tbEditor" Grid.Column="1" MaxHeight="500" ShowLineNumbers="True" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
-                     Background="Transparent" BorderThickness="0" FontSize="15" SyntaxHighlighting="{Binding SyntaxHighlighting}" Foreground="White" 
-                     LineNumbersForeground="White" TextChanged="tbEditor_TextChanged"/>
+            <TabControl x:Name="tcFileTabs" Background="Transparent" Height="auto" MinHeight="520" BorderThickness="0,1,0,0"/>
         </StackPanel>
-
+        
         <GridSplitter x:Name="gsTerminalSplitter" Height="8" Grid.Row="2" DragIncrement="1" Style="{StaticResource CustomGridSplitterStyleHorizontal}" ResizeDirection="Rows" />
 
         <Grid x:Name="gTermialPanel" Grid.Row="3" Background="#1E1E1E" VerticalAlignment="Stretch"/>

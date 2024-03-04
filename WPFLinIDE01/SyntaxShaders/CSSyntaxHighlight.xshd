@@ -8,6 +8,7 @@
 	<Color name="Preprocessor" foreground="LightGray"/>
 	<Color name="FunctionCalls" foreground="#E6E6B1"/>
 	<Color name="Generic" foreground="LightGreen"/>
+	<Color name="Attributes" foreground="#4DC9B0"/>
 
 	<RuleSet>
 		<!-- Comments -->
@@ -41,7 +42,9 @@
 			<Word>private</Word>
 			<Word>protected</Word>
 			<Word>static</Word>
+			<Word>global</Word>
 			<Word>new</Word>
+			<Word>internal</Word>
 			
 			<!-- Modifiers -->
 			<Word>abstract</Word>
@@ -77,6 +80,11 @@
 			<Word>params</Word>
 			<Word>ref</Word>
 			<Word>out</Word>
+			<Word>sizeof</Word>
+			<Word>as</Word>
+			<Word>stackalloc</Word>
+			<Word>add</Word>
+			<Word>remove</Word>
 		</Keywords>
 		
 		<!-- Preprocessor Directives -->
@@ -92,6 +100,8 @@
 			<Word>#region</Word>
 			<Word>#endregion</Word>
 			<Word>#pragma</Word>
+
+			<Word>=></Word>
 		</Keywords>
 
 		<!-- Loop Keywords -->
@@ -113,8 +123,18 @@
 			<Word>finally</Word>
 		</Keywords>
 
+		<!-- Generics -->
 		<Keywords color="Generic">
 			<Word>T</Word>
+		</Keywords>
+		
+		<!-- Attributes -->
+		<Keywords color="Attributes">
+			<Word>Obsolete</Word>
+			<Word>Serializable</Word>
+			<Word>DllImport</Word>
+			<Word>Optional</Word>
+			<Word>Named</Word>
 		</Keywords>
 
 		<!-- Data Types -->

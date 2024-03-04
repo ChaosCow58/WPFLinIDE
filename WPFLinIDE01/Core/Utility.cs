@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+
+using ICSharpCode.AvalonEdit;
 
 namespace WPFLinIDE01.Core
 {
@@ -29,6 +30,29 @@ namespace WPFLinIDE01.Core
                         return childOfChild;
                 }
             }
+            return null;
+        }
+
+        public static TextEditor FindTextEditor(DependencyObject parent)
+        {
+            if (parent == null)
+                return null;
+
+            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childrenCount; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(parent, i);
+
+                if (child is TextEditor textEditor && textEditor.Name == "tbEditor")
+                {
+                    return textEditor;
+                }
+
+                TextEditor result = FindTextEditor(child);
+                if (result != null)
+                    return result;
+            }
+
             return null;
         }
     }
