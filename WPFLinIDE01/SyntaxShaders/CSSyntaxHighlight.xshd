@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SyntaxDefinition name="C#" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
-	<Color name="Comment" foreground="#57A64A" />
-	<Color name="String" foreground="#D69D85" />
-	<Color name="Keyword" foreground="#569CD6" />
+	<Color name="Comment" foreground="#57A64A"/>
+	<Color name="DocComment" foreground="#608B4E"/>
+	<Color name="String" foreground="#D69D85"/>
+	<Color name="Keyword" foreground="#569CD6"/>
 	<Color name="Loop" foreground="#D8A0DF"/>
 	<Color name="Type" foreground="#569CD6" />
 	<Color name="Preprocessor" foreground="LightGray"/>
@@ -12,6 +13,7 @@
 
 	<RuleSet>
 		<!-- Comments -->
+		<Span color="DocComment" begin="///"/>
 		<Span color="Comment" begin="//" />
 		<Span color="Comment" multiline="true" begin="/\*" end="\*/" />
 

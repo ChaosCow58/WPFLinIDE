@@ -17,7 +17,7 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using System.Windows.Media;
 
-
+///
 #pragma warning disable CA1416
 
 namespace WPFLinIDE01
@@ -352,11 +352,11 @@ namespace WPFLinIDE01
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            ContextMenu context = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_File");
+          /*  ContextMenu context = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_File");
             ContextMenu context1 = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
 
             context.Visibility = Visibility.Hidden;
-            context1.Visibility = Visibility.Hidden;
+            context1.Visibility = Visibility.Hidden;*/
         }
 
         public void tbEditor_TextChanged(object sender, EventArgs e)

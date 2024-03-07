@@ -18,6 +18,19 @@
         <KeyBinding Key="F5"   Modifiers=""         Command="{Binding RunCode_Command}"/>
     </Window.InputBindings>
 
+    <Window.Resources>
+        <MenuItem Name="miFolder" x:Key="ItemContextMenu_Folder">
+            <MenuItem Header="Add" Click="ItemRenameMenuItem_Click" InputGestureText="" Foreground="Black"/>
+            <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2" Foreground="Black"/>
+            <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del" Foreground="Black"/>
+        </MenuItem>
+
+        <MenuItem Name="miFile" x:Key="ItemContextMenu_File">
+            <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2" Foreground="Black"/>
+            <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del" Foreground="Black"/>
+        </MenuItem>
+    </Window.Resources>
+
     <Grid Name="gMain">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" MinWidth="243" MaxWidth="995"/>
@@ -68,18 +81,7 @@
         <GridSplitter Grid.Column="1" Grid.Row="1" MinWidth="8" DragIncrement="1" Style="{StaticResource CustomGridSplitterStyleVertical}" HorizontalAlignment="Center" Margin="0,0,0,529"/>
 
         <TreeView x:Name="tvFileTree" Grid.Column="2" Grid.Row="1" Grid.RowSpan="3" Height="auto" Background="#1E1E1E" FontSize="14" MinWidth="230">
-            <TreeView.Resources>
-                <ContextMenu x:Key="ItemContextMenu_Folder" Visibility="Hidden">
-                    <MenuItem Header="Add" Click="ItemRenameMenuItem_Click" InputGestureText=""/>
-                    <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2"/>
-                    <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del"/>
-                </ContextMenu>
-
-                <ContextMenu x:Key="ItemContextMenu_File" Visibility="Hidden">
-                    <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2"/>
-                    <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del"/>
-                </ContextMenu>
-            </TreeView.Resources>
+         
         </TreeView>
         
     </Grid>
