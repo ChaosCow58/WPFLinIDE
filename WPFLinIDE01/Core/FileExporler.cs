@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 using ICSharpCode.AvalonEdit;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 
 namespace WPFLinIDE01.Core
 {
@@ -47,7 +48,6 @@ namespace WPFLinIDE01.Core
                     folderNode.Tag = folder; // Store full path for later use
                     folderNode.Items.Add("*"); // Placeholder to show expand/collapse arrow
                     folderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
-                    folderNode.Selected += FileNode_Selected;
                     parentNode.Items.Add(folderNode);
                 }
                 foreach (string file in Directory.GetFiles(path))
@@ -56,7 +56,6 @@ namespace WPFLinIDE01.Core
                     fileNode.Header = CreateHeader(Path.GetFileName(file), false); // Indicate it's a folder
                     fileNode.Tag = file; // Store full path for later use
                     fileNode.MouseDoubleClick += FileNode_MouseDown;
-                    fileNode.Selected += FileNode_Selected;
                     fileNode.LostFocus += FileNode_LostFocus;
                     fileNode.GotFocus += FileNode_GotFocus;
                     parentNode.Items.Add(fileNode);
@@ -73,16 +72,22 @@ namespace WPFLinIDE01.Core
         {
             TreeViewItem treeViewItem = (TreeViewItem)sender;
 
-            MenuItem stack = Utility.FindVisualChild<MenuItem>(treeViewItem);
-            stack.Background = Brushes.Gray;
+            StackPanel stack = Utility.FindVisualChild<StackPanel>(treeViewItem);
+            if (stack != null)
+            { 
+                stack.Background = Brushes.Gray;
+            }
         }
 
         private void FileNode_LostFocus(object sender, RoutedEventArgs e)
         {
             TreeViewItem treeViewItem = (TreeViewItem)sender;
 
-            MenuItem stack = Utility.FindVisualChild<MenuItem>(treeViewItem);
-            stack.Background = Brushes.DarkGray;
+            StackPanel stack = Utility.FindVisualChild<StackPanel>(treeViewItem);
+            if (stack != null)
+            {
+                stack.Background = Brushes.DarkGray;
+            }
         }
 
         public void DisplayFileSystem()
@@ -96,93 +101,234 @@ namespace WPFLinIDE01.Core
             PopulateTreeView(rootFolder, rootNode);
         }
 
-        private Menu CreateHeader(string text, bool isFolder)
+        private StackPanel CreateHeader(string text, bool isFolder)
         {
-            MainWindow window = App.Current.MainWindow as MainWindow;
-
-            Menu menu = new Menu() 
-            { 
+            StackPanel stackPanel = new StackPanel() 
+            {
                 Background = Brushes.Transparent,
+                Orientation = Orientation.Horizontal,
             };
 
+
+            ContextMenu menu = new ContextMenu() 
+            { 
+                Background = Brushes.White,
+            };
+
+            menu.MouseRightButtonDown += (sender, e) => 
+            {
+                Debug.WriteLine("b");
+                e.Handled = true;
+                menu.Focus();
+            };
 
             if (isFolder)
             {
                 Image image = new Image();
-                MenuItem miFolder = new MenuItem()
-                {
-                    Name = "miFolder",
-                    Header = "Folder",
+                MenuItem[] miFolderItems = {
+                    new MenuItem()
+                    {
+                        Header = "Add",
+                        Foreground = Brushes.Black,
+                        Command = new RelayCommand(ItemAddMenuItem_Click)
+                    },
 
-                    Items = {
-                        new MenuItem() 
-                        {
-                             Header = "Add",
-                             Foreground = Brushes.Black
-                        },
+                    new MenuItem()
+                    {
+                        Header = "Rename",
+                        InputGestureText = "F2",
+                        Foreground = Brushes.Black,
+                        Command = new RelayCommand(ItemRenameMenuItem_Click)
+                    },
 
-                        new MenuItem()
-                        {
-                            Header = "Rename",
-                            InputGestureText = "F2",
-                            Foreground = Brushes.Black
-                        },
-
-                        new MenuItem() 
-                        {
-                            Header = "Delete",
-                            InputGestureText = "Del",
-                            Foreground = Brushes.Black,
-                           
-                        }
+                    new MenuItem()
+                    {
+                        Header = "Delete",
+                        InputGestureText = "Del",
+                        Foreground = Brushes.Black,
+                        Command = new RelayCommand(ItemDeleteMenuItem_Click)
                     }
+                    
                 };
-
-                miFolder.AddHandler(MenuItem.ClickEvent, new RoutedEventHandler(ItemRenameMenuItem_Click));
-                miFolder.AddHandler(MenuItem.ClickEvent, new RoutedEventHandler(ItemRenameMenuItem_Click));
-                miFolder.AddHandler(MenuItem.ClickEvent, new RoutedEventHandler(ItemDeleteMenuItem_Click));
-
-
 
                 image.Source = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/folder.png")); // Set your folder icon path here
                 image.Width = 16;
                 image.Height = 16;
-                miFolder.Icon = image;
+               // miFolder.Icon = image;
 
-                miFolder.Header = text;
-                miFolder.Foreground = Brushes.White;
-                menu.Items.Add(miFolder);
+                TextBox textBlock = new TextBox()
+                {
+                    Text = text,
+                    Foreground = Brushes.White,
+                    IsReadOnly = true,
+                    Background = Brushes.Transparent,
+                    BorderThickness = new Thickness(0),
+                    IsHitTestVisible = false,
+                };
 
+                stackPanel.Children.Add(image);
+                stackPanel.Children.Add(textBlock);
+
+                foreach (MenuItem mi in miFolderItems)
+                { 
+                    menu.Items.Add(mi);
+                }
             }
             else
             {
                 Image image = new Image();
-                MenuItem menuItem2 = (MenuItem)window.FindResource("ItemContextMenu_File");
-                
 
+                MenuItem[] miFileItems = {
+                    new MenuItem()
+                    {
+                        Header = "Rename",
+                        Foreground = Brushes.Black,
+                        InputGestureText = "F2",
+                        Command = new RelayCommand(ItemRenameMenuItemFile_Click)
+                    },
+                    new MenuItem()
+                    {
+                        Header = "Delete",
+                        Foreground= Brushes.Black,
+                        InputGestureText = "Del",
+                        Command = new RelayCommand(ItemDeleteMenuItem_Click)
+                    }
+
+                };
+                  
+                   
                 image.Source = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/file.png"));
                 image.Width = 16;
                 image.Height = 16;
-                menuItem2.Icon = image;
 
-                menuItem2.Header = text;
-                menuItem2.Foreground = Brushes.White;
-                menu.Items.Add(menuItem2);
+                TextBox textBlock = new TextBox() 
+                { 
+                    Text = text,
+                    Foreground = Brushes.White,
+                    IsReadOnly = true,
+                    Background = Brushes.Transparent,
+                    BorderThickness = new Thickness(0),
+                    IsHitTestVisible = false,
+                };
+
+                stackPanel.Children.Add(image);
+                stackPanel.Children.Add(textBlock);
+
+                foreach (MenuItem mi in miFileItems) 
+                {
+                    menu.Items.Add(mi);
+                }
 
             }
-            //menuItem.Header = text;
-            //menuItem.Foreground = Brushes.White;
-            return menu;
+      
+            
+            stackPanel.ContextMenu = menu;
+            return stackPanel;
         }
 
-        private void ItemDeleteMenuItem_Click(object sender, RoutedEventArgs e)
+        private void ItemDeleteMenuItem_Click(object parameter)
         {
-            Debug.WriteLine("Delete");
+            Debug.WriteLine("Delete Folder");
         }
 
-        private void ItemRenameMenuItem_Click(object sender, RoutedEventArgs e)
+        private void ItemRenameMenuItem_Click(object parameter)
         {
-            Debug.WriteLine("Rename");
+            TreeViewItem treeViewItem = (TreeViewItem)treeview.SelectedItem;
+
+            StackPanel stackPanel = Utility.FindVisualChild<StackPanel>(treeViewItem);
+
+            if (stackPanel != null)
+            {
+                TextBox textBox = Utility.FindVisualChild<TextBox>(stackPanel);
+                textBox.IsReadOnly = false;
+                textBox.Foreground = Brushes.Black;
+                textBox.Background = Brushes.White;
+                textBox.CaretBrush = Brushes.Black;
+                textBox.IsHitTestVisible = true;
+
+                textBox.Focus();
+
+                textBox.KeyDown += (sender, e) =>
+                {
+                    if (e.Key == Key.Enter)
+                    {
+                        string newDirectoryName = textBox.Text.Trim();
+                        string currentDirectory = treeViewItem.Tag.ToString();
+                        string parentDirectory = Path.GetDirectoryName(currentDirectory);
+                        string newDirectoryPath = Path.Combine(parentDirectory, newDirectoryName);
+
+                        try
+                        {
+                            if (Directory.Exists(currentDirectory))
+                            {
+                                Directory.Move(currentDirectory, newDirectoryPath);
+                                treeViewItem.Tag = newDirectoryPath;
+
+                                // Update UI elements
+                                textBox.IsReadOnly = true;
+                                textBox.Foreground = Brushes.White;
+                                textBox.Background = Brushes.Transparent;
+                                textBox.IsHitTestVisible = false;
+
+                                // Optionally update TabItem header
+                                /*TabItem tabItem = tabControl.SelectedItem as TabItem;
+                                tabItem.Header = newDirectoryName;
+                                tabItem.Tag = newDirectoryPath;*/
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("Error renaming directory: " + ex.Message);
+                        }
+                    }
+                };
+            }
+        }   
+        
+        private void ItemRenameMenuItemFile_Click(object parameter)
+        {
+            TreeViewItem treeViewItem = (TreeViewItem)treeview.SelectedItem;
+
+            StackPanel stackPanel = Utility.FindVisualChild<StackPanel>(treeViewItem);
+
+            if (stackPanel != null)
+            {
+                TextBox textBox = Utility.FindVisualChild<TextBox>(stackPanel);
+                textBox.IsReadOnly = false;
+                textBox.Foreground = Brushes.Black;
+                textBox.Background = Brushes.White;
+                textBox.CaretBrush = Brushes.Black;
+                textBox.IsHitTestVisible = true;
+
+                textBox.Focus();
+
+                textBox.KeyDown += (sender, e) =>
+                {
+                    if (e.Key == Key.Enter)
+                    {
+                        string newFile = @$"{Path.GetDirectoryName(treeViewItem.Tag.ToString())}\{textBox.Text}";
+
+                        Debug.WriteLine(Path.GetDirectoryName(treeViewItem.Tag.ToString()));
+                        Debug.WriteLine(treeViewItem.Tag);
+                        File.Move(treeViewItem.Tag.ToString(), newFile);
+                        treeViewItem.Tag = newFile;
+
+                        textBox.IsReadOnly = true;
+                        textBox.Foreground = Brushes.White;
+                        textBox.Background = Brushes.Transparent;
+                        textBox.IsHitTestVisible = false;
+
+                        TabItem tabItem = tabControl.SelectedItem as TabItem;
+                        tabItem.Header = Path.GetFileName(treeViewItem.Tag.ToString());
+                        tabItem.Tag = newFile;
+                    }
+                };
+            }
+        }
+
+        private void ItemAddMenuItem_Click(object parameter) 
+        {
+            Debug.WriteLine("Add Folder");
         }
 
         private void Folder_Expanded(object sender, RoutedEventArgs e)
@@ -203,7 +349,6 @@ namespace WPFLinIDE01.Core
                             subFolderNode.Tag = folder;
                             subFolderNode.Items.Add("*"); // Placeholder for sub-nodes
                             subFolderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
-                            subFolderNode.Selected += FileNode_Selected;
                             folderNode.Items.Add(subFolderNode);
                         }
 
@@ -213,7 +358,6 @@ namespace WPFLinIDE01.Core
                             fileNode.Header = CreateHeader(Path.GetFileName(file), false);
                             fileNode.Tag = file; // Store full path for later use
                             fileNode.MouseDoubleClick += FileNode_MouseDown;
-                            fileNode.Selected += FileNode_Selected;
                             fileNode.LostFocus += FileNode_LostFocus;
                             fileNode.GotFocus += FileNode_GotFocus;
                             folderNode.Items.Add(fileNode);
@@ -231,34 +375,6 @@ namespace WPFLinIDE01.Core
             }
         }
 
-        private void FileNode_Selected(object sender, RoutedEventArgs e)
-        {
-            TreeViewItem treeViewItem = (TreeViewItem)treeview.SelectedItem;
-
-            if (treeViewItem != null)
-            {
-                if (Path.HasExtension(Path.GetFileName(treeViewItem.Tag.ToString())))
-                {
-                    if (Mouse.RightButton == MouseButtonState.Pressed)
-                    {
-                        ContextMenu context = (ContextMenu)treeview.FindResource("ItemContextMenu_File");
-                        if (context != null)
-                        {
-                            context.Visibility = Visibility.Visible;
-                        }
-                    }
-                }
-                else
-                {
-                    ContextMenu context = (ContextMenu)treeview.FindResource("ItemContextMenu_Folder");
-                    if (context != null)
-                    {
-                        context.Visibility = Visibility.Visible;
-                    }
-                }
-            }
-            e.Handled = true;
-        }
 
 #pragma warning disable CA1416
         private void FileNode_MouseDown(object sender, MouseButtonEventArgs e)
@@ -310,8 +426,6 @@ namespace WPFLinIDE01.Core
                     Content = editor,
                     Background = Brushes.Gray
                 };
-                tabItem.GotFocus += TabItem_GotFocus;
-                tabItem.LostFocus += TabItem_LostFocus;
 
                 foreach (TabItem tab in tabControl.Items)
                 {
@@ -321,7 +435,11 @@ namespace WPFLinIDE01.Core
                     }
                 }
 
+                tabItem.GotFocus += TabItem_GotFocus;
+                tabItem.LostFocus += TabItem_LostFocus;
+
                 tabControl.Items.Add(tabItem);
+
                 tabItem.Focus();
             }
             catch (Exception ex)

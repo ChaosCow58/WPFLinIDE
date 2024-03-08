@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFLinIDE01"
         mc:Ignorable="d"
-        Title="Create/Open a Project" Height="450" Width="500" Background="Gray" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="Create/Open a Project" Height="450" Width="500" BorderBrush="#FF454545" BorderThickness="1" 
+        Background="Gray" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <DockPanel x:Name="ccHomePanel" Visibility="Visible"/>
 </Window>

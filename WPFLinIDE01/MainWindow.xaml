@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WPFLinIDE01"
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         mc:Ignorable="d"
-        Title="IDE" Height="800" Width="1200" WindowStartupLocation="CenterScreen" MouseDown="Window_MouseDown"
+        Title="IDE" Height="800" Width="1200" BorderBrush="#FF454545" BorderThickness="1" WindowStartupLocation="CenterScreen" MouseDown="Window_MouseDown"
         Background="#1E1E1E">
 
     <Window.InputBindings>
@@ -17,19 +17,6 @@
         <KeyBinding Key="Down" Modifiers="Alt"      Command="{Binding MoveLineDown_Command}"/>
         <KeyBinding Key="F5"   Modifiers=""         Command="{Binding RunCode_Command}"/>
     </Window.InputBindings>
-
-    <Window.Resources>
-        <MenuItem Name="miFolder" x:Key="ItemContextMenu_Folder">
-            <MenuItem Header="Add" Click="ItemRenameMenuItem_Click" InputGestureText="" Foreground="Black"/>
-            <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2" Foreground="Black"/>
-            <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del" Foreground="Black"/>
-        </MenuItem>
-
-        <MenuItem Name="miFile" x:Key="ItemContextMenu_File">
-            <MenuItem Header="Rename" Click="ItemRenameMenuItem_Click" InputGestureText="F2" Foreground="Black"/>
-            <MenuItem Header="Delete" Click="ItemDeleteMenuItem_Click" InputGestureText="Del" Foreground="Black"/>
-        </MenuItem>
-    </Window.Resources>
 
     <Grid Name="gMain">
         <Grid.ColumnDefinitions>
