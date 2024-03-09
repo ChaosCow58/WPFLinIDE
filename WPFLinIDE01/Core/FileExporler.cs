@@ -32,6 +32,8 @@ namespace WPFLinIDE01.Core
             get { return (ItemType)GetValue(ItemTypeProperty);  }
             set { SetValue(ItemTypeProperty, value); } 
         }
+
+        public ExplorlerTreeViewItem() { }
     }
 
     public class FileExporler
@@ -419,7 +421,7 @@ namespace WPFLinIDE01.Core
 
                 TextEditorOptions options = new TextEditorOptions()
                 {
-                    IndentationSize = 3,
+                    IndentationSize = 4,
                     ConvertTabsToSpaces = true,
                     HighlightCurrentLine = true,
                     EnableHyperlinks = true,

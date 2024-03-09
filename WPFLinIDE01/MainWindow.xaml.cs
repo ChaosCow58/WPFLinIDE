@@ -117,13 +117,13 @@ namespace WPFLinIDE01
             {
                 cmdTerminal.CreateTermial();
                 gTermialPanel.Visibility = Visibility.Visible;
-                tbEditor.MaxHeight = 500;
+                fileExporler.editor.MaxHeight = 500;
                 cmdTerminal.terminal.Focus();
             }
             else if (gTermialPanel.Visibility == Visibility.Visible)
             {
                 gTermialPanel.Visibility = Visibility.Collapsed;
-                tbEditor.MaxHeight = 720;
+                fileExporler.editor.MaxHeight = 720;
                 if (cmdTerminal.process != null && !cmdTerminal.process.HasExited)
                 {
                     cmdTerminal.process.Kill();
@@ -157,15 +157,15 @@ namespace WPFLinIDE01
             {
                 using (StreamWriter writer = new StreamWriter(fileExporler.currentFilePath))
                 {
-                    writer.WriteLine(tbEditor.Text);
+                    writer.WriteLine(fileExporler.editor.Text);
                     writer.Close();
                 }
             }
 
-            TreeViewItem selectedItem = tvFileTree.SelectedItem as TreeViewItem;
+            ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)tvFileTree.SelectedItem;
             if (!fileExporler.openFile && selectedItem != null)
             {
-                TextBlock textBlock = Utility.FindVisualChild<TextBlock>(selectedItem);
+                TextBox textBlock = Utility.FindVisualChild<TextBox>(selectedItem);
 
                 if (textBlock.Text.EndsWith("*"))
                 {
@@ -368,10 +368,10 @@ namespace WPFLinIDE01
 
         public void tbEditor_TextChanged(object sender, EventArgs e)
         {
-            TreeViewItem selectedItem = tvFileTree.SelectedItem as TreeViewItem;
+            ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)tvFileTree.SelectedItem;
             if (!fileExporler.openFile && selectedItem != null)
             {
-                TextBlock textBlock = Utility.FindVisualChild<TextBlock>(selectedItem);
+                TextBox textBlock = Utility.FindVisualChild<TextBox>(selectedItem);
 
                 if (textBlock != null && !textBlock.Text.EndsWith('*'))
                 {
