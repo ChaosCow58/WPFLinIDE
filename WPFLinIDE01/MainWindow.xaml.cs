@@ -43,6 +43,7 @@ namespace WPFLinIDE01
         public ICommand CopyLine_Command { get; }
         public ICommand MoveLineUp_Command { get; }
         public ICommand MoveLineDown_Command { get; }
+        public ICommand Rename_Command { get; }
 
         public IHighlightingDefinition SyntaxHighlighting { get; set; }
         private TextEditor tbEditor;
@@ -74,6 +75,7 @@ namespace WPFLinIDE01
             CopyLine_Command = new RelayCommand(CopyLine);
             MoveLineUp_Command = new RelayCommand(MoveLineUp);
             MoveLineDown_Command = new RelayCommand(MoveLineDown);
+            Rename_Command = new RelayCommand(RenameExporler);
 
             lRunCode.Content = $"Run {App.Current.Properties["ProjectName"]}";
 
@@ -324,6 +326,11 @@ namespace WPFLinIDE01
                 // Move caret to the beginning of the moved line
                 tbEditor.CaretOffset = nextLine.Offset;
             }
+        }
+
+        private void RenameExporler(object parameter) 
+        {
+            fileExporler.ItemRenameMenuItemBase();
         }
 
         #endregion Commands

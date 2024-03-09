@@ -13,10 +13,27 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 using ICSharpCode.AvalonEdit;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 
 namespace WPFLinIDE01.Core
 {
+    public enum ItemType
+    {
+        Folder,
+        File
+    };
+
+    public class ExplorlerTreeViewItem : TreeViewItem
+    {
+        public static readonly DependencyProperty ItemTypeProperty =
+            DependencyProperty.Register("ItemType", typeof(ItemType), typeof (ExplorlerTreeViewItem));
+
+        public ItemType ItemType 
+        {
+            get { return (ItemType)GetValue(ItemTypeProperty);  }
+            set { SetValue(ItemTypeProperty, value); } 
+        }
+    }
+
     public class FileExporler
     {
         private TreeView treeview;
@@ -26,13 +43,15 @@ namespace WPFLinIDE01.Core
         public bool openFile = false;
         public string currentFilePath = string.Empty;
 
+      
+
         public FileExporler(TreeView treeView, TabControl tabControl)
         {
             this.treeview = treeView;
             this.tabControl = tabControl;
         }
 
-        private void PopulateTreeView(string path, TreeViewItem parentNode)
+        private void PopulateTreeView(string path, ExplorlerTreeViewItem parentNode)
         {
             try
             {
@@ -43,21 +62,23 @@ namespace WPFLinIDE01.Core
                         continue;
                     }
 
-                    TreeViewItem folderNode = new TreeViewItem();
+                    ExplorlerTreeViewItem folderNode = new ExplorlerTreeViewItem();
                     folderNode.Header = CreateHeader(Path.GetFileName(folder), true); // Indicate it's a folder
                     folderNode.Tag = folder; // Store full path for later use
                     folderNode.Items.Add("*"); // Placeholder to show expand/collapse arrow
                     folderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
+                    folderNode.ItemType = ItemType.Folder;
                     parentNode.Items.Add(folderNode);
                 }
                 foreach (string file in Directory.GetFiles(path))
                 {
-                    TreeViewItem fileNode = new TreeViewItem();
+                    ExplorlerTreeViewItem fileNode = new ExplorlerTreeViewItem();
                     fileNode.Header = CreateHeader(Path.GetFileName(file), false); // Indicate it's a folder
                     fileNode.Tag = file; // Store full path for later use
                     fileNode.MouseDoubleClick += FileNode_MouseDown;
                     fileNode.LostFocus += FileNode_LostFocus;
                     fileNode.GotFocus += FileNode_GotFocus;
+                    fileNode.ItemType = ItemType.File;
                     parentNode.Items.Add(fileNode);
                 }
             }
@@ -70,7 +91,7 @@ namespace WPFLinIDE01.Core
 
         private void FileNode_GotFocus(object sender, RoutedEventArgs e)
         {
-            TreeViewItem treeViewItem = (TreeViewItem)sender;
+            ExplorlerTreeViewItem treeViewItem = (ExplorlerTreeViewItem)sender;
 
             StackPanel stack = Utility.FindVisualChild<StackPanel>(treeViewItem);
             if (stack != null)
@@ -81,7 +102,7 @@ namespace WPFLinIDE01.Core
 
         private void FileNode_LostFocus(object sender, RoutedEventArgs e)
         {
-            TreeViewItem treeViewItem = (TreeViewItem)sender;
+            ExplorlerTreeViewItem treeViewItem = (ExplorlerTreeViewItem)sender;
 
             StackPanel stack = Utility.FindVisualChild<StackPanel>(treeViewItem);
             if (stack != null)
@@ -94,7 +115,7 @@ namespace WPFLinIDE01.Core
         {
             string rootFolder = App.Current.Properties["ProjectPath"].ToString();
 
-            TreeViewItem rootNode = new TreeViewItem();
+            ExplorlerTreeViewItem rootNode = new ExplorlerTreeViewItem();
             rootNode.Header = CreateHeader(App.Current.Properties["ProjectName"].ToString(), true); // Indicate it's a folder
             treeview.Items.Add(rootNode);
 
@@ -184,7 +205,7 @@ namespace WPFLinIDE01.Core
                         Header = "Rename",
                         Foreground = Brushes.Black,
                         InputGestureText = "F2",
-                        Command = new RelayCommand(ItemRenameMenuItemFile_Click)
+                        Command = new RelayCommand(ItemRenameMenuItem_Click)
                     },
                     new MenuItem()
                     {
@@ -233,96 +254,103 @@ namespace WPFLinIDE01.Core
 
         private void ItemRenameMenuItem_Click(object parameter)
         {
-            TreeViewItem treeViewItem = (TreeViewItem)treeview.SelectedItem;
+            ItemRenameMenuItemBase();
+        }
 
-            StackPanel stackPanel = Utility.FindVisualChild<StackPanel>(treeViewItem);
-
-            if (stackPanel != null)
-            {
-                TextBox textBox = Utility.FindVisualChild<TextBox>(stackPanel);
-                textBox.IsReadOnly = false;
-                textBox.Foreground = Brushes.Black;
-                textBox.Background = Brushes.White;
-                textBox.CaretBrush = Brushes.Black;
-                textBox.IsHitTestVisible = true;
-
-                textBox.Focus();
-
-                textBox.KeyDown += (sender, e) =>
-                {
-                    if (e.Key == Key.Enter)
-                    {
-                        string newDirectoryName = textBox.Text.Trim();
-                        string currentDirectory = treeViewItem.Tag.ToString();
-                        string parentDirectory = Path.GetDirectoryName(currentDirectory);
-                        string newDirectoryPath = Path.Combine(parentDirectory, newDirectoryName);
-
-                        try
-                        {
-                            if (Directory.Exists(currentDirectory))
-                            {
-                                Directory.Move(currentDirectory, newDirectoryPath);
-                                treeViewItem.Tag = newDirectoryPath;
-
-                                // Update UI elements
-                                textBox.IsReadOnly = true;
-                                textBox.Foreground = Brushes.White;
-                                textBox.Background = Brushes.Transparent;
-                                textBox.IsHitTestVisible = false;
-
-                                // Optionally update TabItem header
-                                /*TabItem tabItem = tabControl.SelectedItem as TabItem;
-                                tabItem.Header = newDirectoryName;
-                                tabItem.Tag = newDirectoryPath;*/
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine("Error renaming directory: " + ex.Message);
-                        }
-                    }
-                };
-            }
-        }   
-        
-        private void ItemRenameMenuItemFile_Click(object parameter)
+        public void ItemRenameMenuItemBase()
         {
-            TreeViewItem treeViewItem = (TreeViewItem)treeview.SelectedItem;
+            ExplorlerTreeViewItem treeViewItem = (ExplorlerTreeViewItem)treeview.SelectedItem;
 
-            StackPanel stackPanel = Utility.FindVisualChild<StackPanel>(treeViewItem);
-
-            if (stackPanel != null)
+            if (treeViewItem != null)
             {
-                TextBox textBox = Utility.FindVisualChild<TextBox>(stackPanel);
-                textBox.IsReadOnly = false;
-                textBox.Foreground = Brushes.Black;
-                textBox.Background = Brushes.White;
-                textBox.CaretBrush = Brushes.Black;
-                textBox.IsHitTestVisible = true;
+                StackPanel stackPanel = Utility.FindVisualChild<StackPanel>(treeViewItem);
 
-                textBox.Focus();
-
-                textBox.KeyDown += (sender, e) =>
+                if (stackPanel != null)
                 {
-                    if (e.Key == Key.Enter)
+                    TextBox textBox = Utility.FindVisualChild<TextBox>(stackPanel);
+                    textBox.IsReadOnly = false;
+                    textBox.Foreground = Brushes.Black;
+                    textBox.Background = Brushes.White;
+                    textBox.CaretBrush = Brushes.Black;
+                    textBox.IsHitTestVisible = true;
+
+                    textBox.Focus();
+
+                    textBox.KeyDown += (sender, e) =>
                     {
-                        string newFile = @$"{Path.GetDirectoryName(treeViewItem.Tag.ToString())}\{textBox.Text}";
+                        if (e.Key == Key.Enter)
+                        {
+                            if (treeViewItem.ItemType == ItemType.Folder)
+                            {
+                                string newDirectoryName = textBox.Text.Trim();
+                                string currentDirectory = treeViewItem.Tag.ToString();
+                                string parentDirectory = Path.GetDirectoryName(currentDirectory);
+                                string newDirectoryPath = Path.Combine(parentDirectory, newDirectoryName);
 
-                        Debug.WriteLine(Path.GetDirectoryName(treeViewItem.Tag.ToString()));
-                        Debug.WriteLine(treeViewItem.Tag);
-                        File.Move(treeViewItem.Tag.ToString(), newFile);
-                        treeViewItem.Tag = newFile;
+                                try
+                                {
+                                    if (Directory.Exists(currentDirectory))
+                                    {
+                                        Directory.Move(currentDirectory, newDirectoryPath);
+                                        treeViewItem.Tag = newDirectoryPath;
 
-                        textBox.IsReadOnly = true;
-                        textBox.Foreground = Brushes.White;
-                        textBox.Background = Brushes.Transparent;
-                        textBox.IsHitTestVisible = false;
+                                        goto updateUI;
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show("Error renaming directory: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    goto updateUI;
+                                }
+                            }
+                            else if (treeViewItem.ItemType == ItemType.File)
+                            {
+                                string oldFile = treeViewItem.Tag.ToString();
+                                string newFile = @$"{Path.GetDirectoryName(treeViewItem.Tag.ToString())}\{textBox.Text}";
 
-                        TabItem tabItem = tabControl.SelectedItem as TabItem;
-                        tabItem.Header = Path.GetFileName(treeViewItem.Tag.ToString());
-                        tabItem.Tag = newFile;
-                    }
-                };
+                                try
+                                {
+                                    if (File.Exists(treeViewItem.Tag.ToString()))
+                                    {
+                                        File.Move(oldFile, newFile);
+                                        treeViewItem.Tag = newFile;
+
+                                        TabItem selectedItem = (TabItem)tabControl.SelectedItem;
+
+                                        foreach (TabItem tabItem in tabControl.Items)
+                                        {
+                                            if (tabItem.Header == Path.GetFileName(oldFile))
+                                            { 
+                                                tabItem.Header = Path.GetFileName(treeViewItem.Tag.ToString());
+                                                tabItem.Tag = newFile;
+                                            }
+                                            if (selectedItem.Tag == tabItem.Tag)
+                                            {
+                                                selectedItem.Header = Path.GetFileName(treeViewItem.Tag.ToString());
+                                                tabItem.Tag = newFile;
+                                            }
+                                        }
+
+
+                                        goto updateUI;
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show("Error renaming directory: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    goto updateUI;
+                                }
+                            }
+
+                        updateUI:
+                            // Update UI elements
+                            textBox.IsReadOnly = true;
+                            textBox.Foreground = Brushes.White;
+                            textBox.Background = Brushes.Transparent;
+                            textBox.IsHitTestVisible = false;
+                        }
+                    };
+                }
             }
         }
 
@@ -333,7 +361,7 @@ namespace WPFLinIDE01.Core
 
         private void Folder_Expanded(object sender, RoutedEventArgs e)
         {
-            TreeViewItem folderNode = (TreeViewItem)sender;
+            ExplorlerTreeViewItem folderNode = (ExplorlerTreeViewItem)sender;
             try
             {
                 if (folderNode.Items.Count == 1 && (string)folderNode.Items[0] == "*") // Lazy loading
@@ -344,22 +372,24 @@ namespace WPFLinIDE01.Core
                     {
                         foreach (string folder in Directory.GetDirectories(path))
                         {
-                            TreeViewItem subFolderNode = new TreeViewItem();
+                            ExplorlerTreeViewItem subFolderNode = new ExplorlerTreeViewItem();
                             subFolderNode.Header = CreateHeader(Path.GetFileName(folder), true);
                             subFolderNode.Tag = folder;
                             subFolderNode.Items.Add("*"); // Placeholder for sub-nodes
                             subFolderNode.Expanded += Folder_Expanded; // Attach event for lazy loading
+                            subFolderNode.ItemType = ItemType.Folder;
                             folderNode.Items.Add(subFolderNode);
                         }
 
                         foreach (string file in Directory.GetFiles(path))
                         {
-                            TreeViewItem fileNode = new TreeViewItem();
+                            ExplorlerTreeViewItem fileNode = new ExplorlerTreeViewItem();
                             fileNode.Header = CreateHeader(Path.GetFileName(file), false);
                             fileNode.Tag = file; // Store full path for later use
                             fileNode.MouseDoubleClick += FileNode_MouseDown;
                             fileNode.LostFocus += FileNode_LostFocus;
                             fileNode.GotFocus += FileNode_GotFocus;
+                            fileNode.ItemType = ItemType.File;
                             folderNode.Items.Add(fileNode);
                         }
                     }
@@ -381,7 +411,7 @@ namespace WPFLinIDE01.Core
         {
             openFile = true;
 
-            TreeViewItem treeViewItem = sender as TreeViewItem;
+            ExplorlerTreeViewItem treeViewItem = (ExplorlerTreeViewItem)sender;
             MainWindow mainWindow = Application.Current.MainWindow as MainWindow;
             try
             {

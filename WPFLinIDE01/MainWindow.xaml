@@ -16,6 +16,7 @@
         <KeyBinding Key="Up"   Modifiers="Alt"      Command="{Binding MoveLineUp_Command}"/>
         <KeyBinding Key="Down" Modifiers="Alt"      Command="{Binding MoveLineDown_Command}"/>
         <KeyBinding Key="F5"   Modifiers=""         Command="{Binding RunCode_Command}"/>
+        <KeyBinding Key="F2"   Modifiers=""         Command="{Binding Rename_Command}"/>
     </Window.InputBindings>
 
     <Grid Name="gMain">
@@ -67,9 +68,7 @@
 
         <GridSplitter Grid.Column="1" Grid.Row="1" MinWidth="8" DragIncrement="1" Style="{StaticResource CustomGridSplitterStyleVertical}" HorizontalAlignment="Center" Margin="0,0,0,529"/>
 
-        <TreeView x:Name="tvFileTree" Grid.Column="2" Grid.Row="1" Grid.RowSpan="3" Height="auto" Background="#1E1E1E" FontSize="14" MinWidth="230">
-         
-        </TreeView>
-        
+        <TreeView x:Name="tvFileTree" Grid.Column="2" Grid.Row="1" Grid.RowSpan="3" Height="auto" Background="#1E1E1E" FontSize="14" MinWidth="230"/>
+
     </Grid>
 </Window>
