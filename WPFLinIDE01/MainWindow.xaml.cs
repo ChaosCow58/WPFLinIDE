@@ -15,9 +15,7 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using WPFLinIDE01.Core;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
-using System.Windows.Media;
 
-///
 #pragma warning disable CA1416
 
 namespace WPFLinIDE01
@@ -381,6 +379,15 @@ namespace WPFLinIDE01
             fileExporler.openFile = false;
         }
 
-    
+        private void CloseTab_Click(object sender, RoutedEventArgs e)
+        {
+            Button closeButton = (Button)sender;
+            TabItem tabItem = (TabItem)Utility.FindAncestor(closeButton, typeof(TabItem));
+
+            if (tabItem != null)
+            {
+               fileExporler.tabControl.Items.Remove(tabItem);
+            }
+        }
     }
 }

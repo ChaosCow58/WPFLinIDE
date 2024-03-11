@@ -59,7 +59,22 @@
         </Border>
         
         <StackPanel Grid.Row="1" MinWidth="945" Background="#1E1E1E">
-            <TabControl x:Name="tcFileTabs" Background="Transparent" Height="auto" MinHeight="520" BorderThickness="0,1,0,0"/>
+            <TabControl x:Name="tcFileTabs" Background="Transparent" Height="auto" MinHeight="520" BorderThickness="0,1,0,0">
+                <TabControl.Resources>
+                    <Style TargetType="TabItem">
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="-1">
+                                        <TextBlock Text="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TabItem}}, Path=Header}"/>
+                                        <Button Content="X" Margin="5,0,0,0" Click="CloseTab_Click" Background="Transparent" BorderThickness="0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+            </TabControl>
         </StackPanel>
         
         <GridSplitter x:Name="gsTerminalSplitter" Height="8" Grid.Row="2" DragIncrement="1" Style="{StaticResource CustomGridSplitterStyleHorizontal}" ResizeDirection="Rows" />

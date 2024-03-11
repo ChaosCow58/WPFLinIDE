@@ -39,8 +39,9 @@ namespace WPFLinIDE01.Core
     public class FileExporler
     {
         private TreeView treeview;
+
         public TextEditor editor;
-        private TabControl tabControl;
+        public TabControl tabControl;
 
         public bool openFile = false;
         public string currentFilePath = string.Empty;
@@ -319,19 +320,28 @@ namespace WPFLinIDE01.Core
 
                                         TabItem selectedItem = (TabItem)tabControl.SelectedItem;
 
+                                        // Rename method
                                         foreach (TabItem tabItem in tabControl.Items)
                                         {
-                                            if (tabItem.Header == Path.GetFileName(oldFile))
-                                            { 
-                                                tabItem.Header = Path.GetFileName(treeViewItem.Tag.ToString());
-                                                tabItem.Tag = newFile;
-                                            }
-                                            if (selectedItem.Tag == tabItem.Tag)
+                                            if (tabItem.Tag.ToString() == oldFile)
                                             {
-                                                selectedItem.Header = Path.GetFileName(treeViewItem.Tag.ToString());
+                                                tabItem.Header = Path.GetFileName(newFile);
                                                 tabItem.Tag = newFile;
+                                                break; // Exit the loop since the tab has been renamed
                                             }
                                         }
+
+                                        // Check for duplicates and open tabs
+                                        foreach (TabItem tabItem in tabControl.Items)
+                                        {
+                                            if (tabItem.Tag.ToString() == newFile && tabItem != selectedItem)
+                                            {
+                                                // Close duplicate tab
+                                                tabControl.Items.Remove(tabItem);
+                                                break; // Exit the loop since a duplicate has been removed
+                                            }
+                                        }
+
 
 
                                         goto updateUI;
@@ -421,7 +431,7 @@ namespace WPFLinIDE01.Core
 
                 TextEditorOptions options = new TextEditorOptions()
                 {
-                    IndentationSize = 4,
+                    IndentationSize = 6,
                     ConvertTabsToSpaces = true,
                     HighlightCurrentLine = true,
                     EnableHyperlinks = true,

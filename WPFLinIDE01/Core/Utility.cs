@@ -33,26 +33,17 @@ namespace WPFLinIDE01.Core
             return null;
         }
 
-        public static TextEditor FindTextEditor(DependencyObject parent)
+        public static DependencyObject FindAncestor(DependencyObject current, Type targetType)
         {
-            if (parent == null)
-                return null;
-
-            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
-            for (int i = 0; i < childrenCount; i++)
+            do
             {
-                DependencyObject child = VisualTreeHelper.GetChild(parent, i);
-
-                if (child is TextEditor textEditor && textEditor.Name == "tbEditor")
+                if (current.GetType() == targetType)
                 {
-                    return textEditor;
+                    return current;
                 }
-
-                TextEditor result = FindTextEditor(child);
-                if (result != null)
-                    return result;
+                current = VisualTreeHelper.GetParent(current);
             }
-
+            while (current != null);
             return null;
         }
     }
