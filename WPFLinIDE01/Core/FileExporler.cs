@@ -38,7 +38,7 @@ namespace WPFLinIDE01.Core
 
     public class FileExporler
     {
-        private TreeView treeview;
+        public TreeView treeview;
 
         public TextEditor editor;
         public TabControl tabControl;
@@ -120,10 +120,15 @@ namespace WPFLinIDE01.Core
 
             ExplorlerTreeViewItem rootNode = new ExplorlerTreeViewItem();
             rootNode.Header = CreateHeader(App.Current.Properties["ProjectName"].ToString(), true); // Indicate it's a folder
+            rootNode.Tag = rootFolder;
             treeview.Items.Add(rootNode);
 
             PopulateTreeView(rootFolder, rootNode);
+
+            // Expand the root node
+            rootNode.IsExpanded = true;
         }
+
 
         private StackPanel CreateHeader(string text, bool isFolder)
         {
@@ -368,7 +373,13 @@ namespace WPFLinIDE01.Core
 
         private void ItemAddMenuItem_Click(object parameter) 
         {
-            Debug.WriteLine("Add Folder");
+            ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)treeview.SelectedItem;
+            if (selectedItem != null)
+            {
+                File.Create(@$"{selectedItem.Tag}\Test.cs");
+                treeview.Items.Clear();
+                DisplayFileSystem();
+            }
         }
 
         private void Folder_Expanded(object sender, RoutedEventArgs e)

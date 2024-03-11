@@ -160,21 +160,25 @@ namespace WPFLinIDE01
                 }
             }
 
-            ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)tvFileTree.SelectedItem;
-            if (!fileExporler.openFile && selectedItem != null)
-            {
-                TextBox textBlock = Utility.FindVisualChild<TextBox>(selectedItem);
-
-                if (textBlock.Text.EndsWith("*"))
+            foreach (ExplorlerTreeViewItem selectedItem in fileExporler.treeview.Items)
+            {       
+                if (!fileExporler.openFile)
                 {
-                    // Remove the star from the end
-                    textBlock.Text = textBlock.Text.Substring(0, textBlock.Text.Length - 1);
+                    TextBox textBlock = Utility.FindVisualChild<TextBox>(selectedItem);
+                     
+                    if (textBlock.Text.Trim('*') == fileExporler.tabControl.SelectedItem.Header && textBlock.Text.EndsWith("*"))
+                    {
+                        // Remove the star from the end
+                        textBlock.Text = textBlock.Text.Substring(0, textBlock.Text.Length - 1);
+                    }
                 }
+                fileExporler.openFile = false;
+
+
+                Debug.WriteLine("Save");
+
+                break;
             }
-            fileExporler.openFile = false;
-
-
-            Debug.WriteLine("Save");
         }
 
         private void RunCode(object parameter)
