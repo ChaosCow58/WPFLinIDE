@@ -150,6 +150,7 @@ namespace WPFLinIDE01
 
         private void SaveFileBase()
         {
+            TextBlock block = new TextBlock();
 
             if (!string.IsNullOrEmpty(fileExporler.currentFilePath))
             {
@@ -160,24 +161,42 @@ namespace WPFLinIDE01
                 }
             }
 
+            TabItem tabItem = (TabItem)fileExporler.tabControl.SelectedItem;
+            if (tabItem != null)
+            {
+                StackPanel stack = Utility.FindVisualChild<StackPanel>(tabItem);
+
+                if (stack != null)
+                { 
+                    block = Utility.FindVisualChild<TextBlock>(stack);
+                }
+            }
+
             foreach (ExplorlerTreeViewItem selectedItem in fileExporler.treeview.Items)
-            {       
-                if (!fileExporler.openFile)
-                {
-                    TextBox textBlock = Utility.FindVisualChild<TextBox>(selectedItem);
-                     
-                    if (textBlock.Text.Trim('*') == fileExporler.tabControl.SelectedItem.Header && textBlock.Text.EndsWith("*"))
-                    {
-                        // Remove the star from the end
-                        textBlock.Text = textBlock.Text.Substring(0, textBlock.Text.Length - 1);
+            {
+                if (selectedItem.HasItems)
+                {  
+                    foreach (ExplorlerTreeViewItem item in selectedItem.Items) 
+                    {   
+                        if (!fileExporler.openFile)
+                        {
+                            TextBox textBlock = Utility.FindVisualChild<TextBox>(item);
+
+                            if (textBlock.Text.Trim('*') == block.Text.Trim('*') && textBlock.Text.EndsWith("*"))
+                            {
+                                // Remove the star from the end
+                                textBlock.Text = textBlock.Text.Substring(0, textBlock.Text.Length - 1);
+                                block.Text = block.Text.Substring(0, block.Text.Length - 1);
+                                fileExporler.openFile = false;
+
+
+                                Debug.WriteLine("Save");
+
+                                break;
+                            }
+                        }
                     }
                 }
-                fileExporler.openFile = false;
-
-
-                Debug.WriteLine("Save");
-
-                break;
             }
         }
 
@@ -361,15 +380,31 @@ namespace WPFLinIDE01
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-          /*  ContextMenu context = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_File");
-            ContextMenu context1 = (ContextMenu)tvFileTree.FindResource("ItemContextMenu_Folder");
+       /*     ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)tvFileTree.SelectedItem;
 
-            context.Visibility = Visibility.Hidden;
-            context1.Visibility = Visibility.Hidden;*/
+            StackPanel stackPanel = Utility.FindVisualChild<StackPanel>(selectedItem);
+            stackPanel.ContextMenu.Visibility = Visibility.Hidden;*/
         }
 
         public void tbEditor_TextChanged(object sender, EventArgs e)
         {
+            TabItem tabItem = (TabItem)fileExporler.tabControl.SelectedItem;
+            if (tabItem != null)
+            {
+                StackPanel stack = Utility.FindVisualChild<StackPanel>(tabItem);
+
+                if (stack != null)
+                {
+                    TextBlock textBlock = Utility.FindVisualChild<TextBlock>(stack);
+
+                    if (textBlock != null && !textBlock.Text.EndsWith('*'))
+                    {
+                        textBlock.Text += "*";
+                    }
+                }
+            }
+
+
             ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)tvFileTree.SelectedItem;
             if (!fileExporler.openFile && selectedItem != null)
             {

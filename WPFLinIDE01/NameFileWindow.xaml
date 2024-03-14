@@ -1,0 +1,42 @@
+﻿<Window x:Class="WPFLinIDE01.NameFileWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPFLinIDE01"
+        mc:Ignorable="d"
+        Title="NameFileWindow" Height="200" Width="450" Background="Transparent"
+        WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" AllowsTransparency="True">
+    <Border Background="Gray" CornerRadius="6"  BorderBrush="#FF454545" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Content="Add a New Class" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Width="auto">
+                <Label  Content="{Binding DirectoryPath}" FontSize="15" MaxWidth="200"/>
+                <TextBox Height="20" Width="270" TextWrapping="NoWrap"/>
+                <Label Content=".cs" VerticalAlignment="Bottom"/>
+            </StackPanel>
+
+            <Button Grid.Row="2" Background="#FF67568A" Width="100" Height="35" BorderThickness="0" Content="Save" Foreground="White" HorizontalAlignment="Left" Margin="15,0,0,0">
+                <Button.Resources>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="CornerRadius" Value="10"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            
+            <Button Grid.Row="2" Background="#FFC51D1D" Width="100" Height="35" BorderThickness="0" Content="Cancel" Foreground="White" HorizontalAlignment="Right" Margin="0,0,15,0" Click="btCancel_Click">
+                <Button.Resources>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="CornerRadius" Value="10"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </Grid>
+    </Border>
+</Window>

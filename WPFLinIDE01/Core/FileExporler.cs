@@ -25,7 +25,7 @@ namespace WPFLinIDE01.Core
     public class ExplorlerTreeViewItem : TreeViewItem
     {
         public static readonly DependencyProperty ItemTypeProperty =
-            DependencyProperty.Register("ItemType", typeof(ItemType), typeof (ExplorlerTreeViewItem));
+            DependencyProperty.Register("ItemType", typeof(ItemType), typeof(ExplorlerTreeViewItem));
 
         public ItemType ItemType 
         {
@@ -374,9 +374,33 @@ namespace WPFLinIDE01.Core
         private void ItemAddMenuItem_Click(object parameter) 
         {
             ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)treeview.SelectedItem;
+
+            string fullPath = selectedItem.Tag.ToString();
+            fullPath = @"C:\AM\Sources\Test1235\Resources";
+            string fileName = fullPath.Substring(fullPath.LastIndexOf("\\") + 1);
+
+            Debug.WriteLine(fileName);
+
+            NameFileWindow nameFileWindow = new NameFileWindow();
+            nameFileWindow.ShowDialog();
+
             if (selectedItem != null)
             {
-                File.Create(@$"{selectedItem.Tag}\Test.cs");
+                using (StreamWriter sm = new StreamWriter(@$"{selectedItem.Tag}\Test.cs"))
+                {
+                    sm.WriteLine(@$"using System;
+
+namespace {App.Current.Properties["ProjectName"]}
+{{
+     class Test
+     {{
+       
+     }}
+}}");
+                    sm.Close();
+                }
+
+                    
                 treeview.Items.Clear();
                 DisplayFileSystem();
             }
