@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -58,7 +58,7 @@ namespace WPFLinIDE01.Core
                 }
             }
 
-            string localDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "EduPartners");
+            string localDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LinIDE");
             string loaclFilePath = Path.Combine(localDataPath, "global.linproj");
 
             using (StreamWriter sm = new StreamWriter(loaclFilePath))
