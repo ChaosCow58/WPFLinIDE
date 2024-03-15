@@ -1,8 +1,8 @@
 {
   "ProjectName": "example",
-  "ProjectPath": "example\ss\",
+  "ProjectPath": "example\\ss\\",
   "Langague": "en-US",
-  "Compiler":  "Roslyn"
+  "Compiler":  "Roslyn",
 
   "EditorSettings": {
     "IndentationSize": 6,

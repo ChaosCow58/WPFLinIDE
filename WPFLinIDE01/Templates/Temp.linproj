@@ -1,7 +1,7 @@
 {
 	"ProjectName": "",
 	"ProjectPath": "",
-	"Language": "en-US",
+	"Langague": "en-US",
 	"Compiler": "Roslyn",
 
 	"EditorSettings": {

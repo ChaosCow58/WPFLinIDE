@@ -27,7 +27,7 @@
     <EmbeddedResource Include="SyntaxShaders\CSSyntaxHighlight.xshd" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="syntaxshaders\Temp.linproj" />
+    <EmbeddedResource Include="Templates\Temp.linproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.3.0.90" />

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -14,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using WPFLinIDE01.Core;
 
 namespace WPFLinIDE01
 {
@@ -41,6 +43,10 @@ namespace WPFLinIDE01
             {
                 App.Current.Properties["ProjectPath"] = openFolderDialog.FolderName;
                 App.Current.Properties["ProjectName"] = Path.GetFileName(openFolderDialog.FolderName);
+
+                MetaDataFile.CreateMetaFile(openFolderDialog.FolderName, Path.GetFileName(openFolderDialog.FolderName));
+                // MetaDataFile.SetMetaValue("ProjectName", "Test123");
+                Debug.WriteLine(MetaDataFile.GetMetaValue("EditorSettings.IndentationSize"));
                 window.Close();
             }
 

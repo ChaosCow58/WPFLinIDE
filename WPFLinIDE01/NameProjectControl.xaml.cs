@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using WPFLinIDE01.Core;
 
 
 namespace WPFLinIDE01
@@ -30,6 +31,7 @@ namespace WPFLinIDE01
                 return;
             }
 
+
             OpenFolderDialog openFolderDialog = new OpenFolderDialog()
             {
                 Title = "Select a Project Location",
@@ -43,6 +45,8 @@ namespace WPFLinIDE01
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "Resources"));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "bin"));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, @"bin\Logs"));
+
+                MetaDataFile.CreateMetaFile(diretoryPath.FullName, tbProjectName.Text);
 
                 FileStream basicFile = File.Create(Path.Combine(diretoryPath.FullName, "Program.cs"));
 

@@ -296,6 +296,7 @@ namespace WPFLinIDE01
             cmdTerminal.terminal.InternalRichTextBox.ScrollToCaret();
         }
 
+
         private void CopyLine(object parameter)
         {
             int currentLineNumber = tbEditor.TextArea.Caret.Line;
