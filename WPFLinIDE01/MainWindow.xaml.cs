@@ -368,16 +368,6 @@ namespace WPFLinIDE01
             e.Handled = true;
         }
 
-        private void ItemDeleteMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void ItemRenameMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
        /*     ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)tvFileTree.SelectedItem;
@@ -410,7 +400,7 @@ namespace WPFLinIDE01
             {
                 TextBox textBlock = Utility.FindVisualChild<TextBox>(selectedItem);
 
-                if (textBlock != null && !textBlock.Text.EndsWith('*'))
+                if (selectedItem.ItemType == ItemType.File && textBlock != null && !textBlock.Text.EndsWith('*'))
                 {
                     textBlock.Text += "*";
                 }

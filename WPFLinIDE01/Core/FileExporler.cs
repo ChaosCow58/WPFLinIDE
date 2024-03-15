@@ -375,34 +375,76 @@ namespace WPFLinIDE01.Core
         {
             ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)treeview.SelectedItem;
 
-            string fullPath = selectedItem.Tag.ToString();
-            fullPath = @"C:\AM\Sources\Test1235\Resources";
-            string fileName = fullPath.Substring(fullPath.LastIndexOf("\\") + 1);
-
-            Debug.WriteLine(fileName);
-
-            NameFileWindow nameFileWindow = new NameFileWindow();
-            nameFileWindow.ShowDialog();
-
             if (selectedItem != null)
-            {
-                using (StreamWriter sm = new StreamWriter(@$"{selectedItem.Tag}\Test.cs"))
+            { 
+                string fullPath = selectedItem.Tag.ToString();
+                string convertedPath = ConvertToRelativePath(fullPath);
+
+                App.Current.Properties["DotPath"] = convertedPath.Replace('/', '.');
+
+
+                NameFileWindow nameFileWindow = new NameFileWindow();
+                nameFileWindow.ShowDialog();
+
+                if (!string.IsNullOrEmpty(App.Current.Properties["FileName"]?.ToString()))
                 {
-                    sm.WriteLine(@$"using System;
+                    using (StreamWriter sm = new StreamWriter(@$"{fullPath}\{App.Current.Properties["FileName"]}.cs"))
+                    {
+                        if (File.Exists(@$"{fullPath}\{App.Current.Properties["FileName"]}.cs"))
+                        {
+                            MessageBoxResult messageBoxResult = MessageBox.Show("This file already exists do you want to replace it?", "Replace File", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+                            if (messageBoxResult == MessageBoxResult.Yes)
+                            {
+                                sm.WriteLine($"using System;\n\nnamespace {App.Current.Properties["DotPath"]}\n{{\n\tclass {App.Current.Properties["FileName"]}\n\t{{\n\n\t}}\n}}");
+                                InitializeFileSystemWatcher(@$"{fullPath}\{App.Current.Properties["FileName"]}.cs");
+                                sm.Close();
+                            }
+                            else
+                            {
+                                sm.Close();
+                            }
+                        }
+                    }
 
-namespace {App.Current.Properties["ProjectName"]}
-{{
-     class Test
-     {{
-       
-     }}
-}}");
-                    sm.Close();
-                }
+                    App.Current.Properties["FileName"] = null;
 
+                    treeview.Items.Clear();
+                    DisplayFileSystem();
                     
-                treeview.Items.Clear();
-                DisplayFileSystem();
+
+
+                }
+            }
+        }
+
+        private string ConvertToRelativePath(string fullPath)
+        {
+            int projectNameIndex = fullPath.IndexOf(App.Current.Properties["ProjectName"].ToString());
+
+            string rootDirectory = string.Empty; // Root directory path
+
+            if (projectNameIndex >= 0)
+            {
+                rootDirectory = fullPath.Substring(0, projectNameIndex);
+            }
+
+
+            // Check if the full path starts with the root directory
+            if (fullPath.StartsWith(rootDirectory))
+            {
+                // Remove the root directory path
+                string relativePath = fullPath.Substring(rootDirectory.Length);
+
+                // Replace backslashes with forward slashes
+                relativePath = relativePath.Replace("\\", "/");
+
+                return relativePath;
+            }
+            else
+            {
+                // If the full path doesn't start with the root directory,
+                // return the full path as is
+                return fullPath;
             }
         }
 
@@ -538,6 +580,48 @@ namespace {App.Current.Properties["ProjectName"]}
             tabItem.Background = Brushes.DarkGray;
         }
 
-       
-    }
-}
+        // Declare a file system watcher at class level
+        private FileSystemWatcher fileWatcher;
+
+        // Initialize the file system watcher
+        private void InitializeFileSystemWatcher(string filePath)
+        {
+            // Ensure to unsubscribe previous events
+            if (fileWatcher != null)
+            {
+                fileWatcher.Changed -= FileWatcher_Changed;
+                fileWatcher.Dispose();
+            }
+
+            fileWatcher = new FileSystemWatcher(Path.GetDirectoryName(filePath));
+            fileWatcher.Filter = Path.GetFileName(filePath);
+            fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
+            fileWatcher.Changed += FileWatcher_Changed;
+            fileWatcher.EnableRaisingEvents = true;
+        }
+
+        // Event handler for file changes
+        private void FileWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            if (e.ChangeType == WatcherChangeTypes.Changed)
+            {
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        editor.Text = File.ReadAllText(e.FullPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                });
+
+            }
+        }
+
+
+
+    } // Class
+} // Namespace

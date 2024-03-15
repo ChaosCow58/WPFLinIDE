@@ -18,11 +18,11 @@
             <Label Grid.Row="0" Content="Add a New Class" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Width="auto">
                 <Label  Content="{Binding DirectoryPath}" FontSize="15" MaxWidth="200"/>
-                <TextBox Height="20" Width="270" TextWrapping="NoWrap"/>
+                <TextBox x:Name="tbFileName" Height="20" Width="270" TextWrapping="NoWrap"/>
                 <Label Content=".cs" VerticalAlignment="Bottom"/>
             </StackPanel>
 
-            <Button Grid.Row="2" Background="#FF67568A" Width="100" Height="35" BorderThickness="0" Content="Save" Foreground="White" HorizontalAlignment="Left" Margin="15,0,0,0">
+            <Button Grid.Row="2" Background="#FF67568A" Width="100" Height="35" BorderThickness="0" Content="Save" Foreground="White" HorizontalAlignment="Left" Margin="15,0,0,0" Click="btSave_Click">
                 <Button.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="10"/>
