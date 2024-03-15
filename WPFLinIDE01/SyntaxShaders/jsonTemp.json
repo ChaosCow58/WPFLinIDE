@@ -1,0 +1,17 @@
+{
+  "ProjectName": "example",
+  "ProjectPath": "example\ss\",
+  "Langague": "en-US",
+  "Compiler":  "Roslyn"
+
+  "EditorSettings": {
+    "IndentationSize": 6,
+    "ConvertTabsToSpaces": true,
+    "HighlightCurrentLine": true,
+    "EnableHyperlinks": true,
+    "RequireControlModifierForHyperlinkClick": true,
+    "EnableImeSupport": true,
+    "CutCopyWholeLine": true,
+    "ShowLineNumbers":  true,
+  }
+}
