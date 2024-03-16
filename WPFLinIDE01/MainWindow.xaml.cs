@@ -53,10 +53,6 @@ namespace WPFLinIDE01
             homePage = new HomePage();
             homePage.ShowDialog();
 
-            if (App.Current.Properties["ProjectPath"] == null)
-            {
-                Close();
-            }
 
             fileExporler = new FileExporler(tvFileTree, tcFileTabs);
             tbEditor = fileExporler.editor;
@@ -75,7 +71,7 @@ namespace WPFLinIDE01
             MoveLineDown_Command = new RelayCommand(MoveLineDown);
             Rename_Command = new RelayCommand(RenameExporler);
 
-            lRunCode.Content = $"Run {App.Current.Properties["ProjectName"]}";
+            lRunCode.Content = $"Run {MetaDataFile.GetMetaValue<string>("ProjectName")}";
 
             BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/save.png"));
             miSaveItem.Icon = new Image { Source = icon };
@@ -96,8 +92,7 @@ namespace WPFLinIDE01
                 cmdTerminal.terminal.Dispose();
             }
 
-            MetaDataFile.SetMetaValue("Settings", null, true);
-            Debug.WriteLine(MetaDataFile.GetMetaValue("Compiler", true));
+            // MetaDataFile.SetMetaValue("Settings", "", true);
         }
         
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -226,9 +221,9 @@ namespace WPFLinIDE01
 
             Thread.Sleep(500);
 
-            string binDirectory = @$"{App.Current.Properties["ProjectPath"]}\bin\";
+            string binDirectory = @$"{MetaDataFile.GetMetaValue<string>("ProjectPath")}\bin\";
             string errorLogDir = @$"{binDirectory}Logs\";
-            string errorLogDirJson = @$"{binDirectory}Logs\{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.json";
+            string errorLogDirJson = @$"{binDirectory}Logs\{Path.GetFileNameWithoutExtension(MetaDataFile.GetMetaValue<string>("ProjectName"))}.json";
 
             if (!Directory.Exists(binDirectory))
             {
@@ -241,8 +236,8 @@ namespace WPFLinIDE01
             }
 
 
-            // TODO make a checkbox for unsafe mode use -unsafe if true -errorendlocation
-            cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDirJson}' '{fileExporler.currentFilePath}'");
+            // TODO make a checkbox for unsafe mode use -unsafe if true
+            cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(MetaDataFile.GetMetaValue<string>("ProjectName"))}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDirJson}' '{fileExporler.currentFilePath}'");
 
             Thread.Sleep(200);
 
@@ -292,7 +287,7 @@ namespace WPFLinIDE01
 
             if (string.IsNullOrEmpty(Item.level))
             {
-                cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(App.Current.Properties["ProjectName"].ToString())}.exe'");
+                cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(MetaDataFile.GetMetaValue<string>("ProjectName"))}.exe'");
             }
 
             cmdTerminal.terminal.Focus();

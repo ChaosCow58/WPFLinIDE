@@ -64,26 +64,25 @@ namespace WPFLinIDE01.Core
                 }
             }
 
-            if (!File.Exists(fullPath))
+            
+            using (StreamReader reader = new StreamReader(globalFilePath))
             {
-                using (StreamReader reader = new StreamReader(globalFilePath))
+                if (reader == null)
                 {
-                    if (reader == null)
-                    {
-                        MessageBox.Show("Unable to read Project File.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-
-                    using (StreamWriter sm = new StreamWriter(@$"{fullPath}"))
-                    {
-                        sm.WriteLine(reader.ReadToEnd());
-                        sm.Close();
-                    }
-
-                    reader.Close();
+                    MessageBox.Show("Unable to read Project File.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
-                  
+
+                using (StreamWriter sm = new StreamWriter(@$"{fullPath}"))
+                {
+                    sm.WriteLine(reader.ReadToEnd());
+                    sm.Close();
+                }
+
+                reader.Close();
             }
+                  
+            
 
             MetaDataFile.filePath = filePath;
             MetaDataFile.projectName = projectName;
@@ -91,7 +90,7 @@ namespace WPFLinIDE01.Core
             MetaDataFile.globalFilePath = globalFilePath;
         }
 
-        public static void SetMetaValue(string key, string value, bool toGlobal = false)
+        public static void SetMetaValue<T>(string key, T value, bool toGlobal = false)
         {
             if (!toGlobal)
             {
@@ -165,65 +164,68 @@ namespace WPFLinIDE01.Core
             }
         }
 
-        public static string GetMetaValue(string key, bool fromGlobal = false) 
+        public static T GetMetaValue<T>(string key, bool fromGlobal = false) 
         {
-            string result = string.Empty;
+            T result = default;
 
-            if (!fromGlobal)
-            {
-                dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(fullPath));
-
-                if (key.Contains("."))
+            if (!string.IsNullOrEmpty(fullPath) && !string.IsNullOrEmpty(globalFilePath))
+            { 
+                if (!fromGlobal)
                 {
-                    string[] keys = key.Split('.');
+                    dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(fullPath));
 
-                    string nestedKey = keys[keys.Length - 1];
-
-                    if (data[keys[keys.Length - 2]][nestedKey] == null)
+                    if (key.Contains("."))
                     {
-                        throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
-                    }
+                        string[] keys = key.Split('.');
 
-                    result = data["EditorSettings"][nestedKey];
+                        string nestedKey = keys[keys.Length - 1];
+
+                        if (data[keys[keys.Length - 2]][nestedKey] == null)
+                        {
+                            throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
+                        }
+
+                        result = data["EditorSettings"][nestedKey];
+                    }
+                    else
+                    {
+                        if (data[key] == null)
+                        {
+                            throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
+                        }
+
+                        result = data[key];
+                    }
                 }
                 else
                 {
-                    if (data[key] == null)
-                    {
-                        throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
-                    }
+                    dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(globalFilePath));
 
-                    result = data[key];
+                    if (key.Contains("."))
+                    {
+                        string[] keys = key.Split('.');
+
+                        string nestedKey = keys[keys.Length - 1];
+
+                        if (data[keys[keys.Length - 2]][nestedKey] == null)
+                        {
+                            throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
+                        }
+
+                        result = data["EditorSettings"][nestedKey];
+                    }
+                    else
+                    {
+                        if (data[key] == null)
+                        {
+                            throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
+                        }
+
+                        result = data[key];
+                    }
                 }
+
             }
-            else
-            {
-                dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(globalFilePath));
-
-                if (key.Contains("."))
-                {
-                    string[] keys = key.Split('.');
-
-                    string nestedKey = keys[keys.Length - 1];
-
-                    if (data[keys[keys.Length - 2]][nestedKey] == null)
-                    {
-                        throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
-                    }
-
-                    result = data["EditorSettings"][nestedKey];
-                }
-                else
-                {
-                    if (data[key] == null)
-                    {
-                        throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
-                    }
-
-                    result = data[key];
-                }
-            }
-
             return result;
         }
     } // Class

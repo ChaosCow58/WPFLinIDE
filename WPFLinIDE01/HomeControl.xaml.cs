@@ -33,20 +33,24 @@ namespace WPFLinIDE01
         {
             Window window = Window.GetWindow(this);
 
-            OpenFolderDialog openFolderDialog = new OpenFolderDialog()
+            OpenFileDialog openFolderDialog = new OpenFileDialog()
             {
                 Title = "Select a Project",
-                InitialDirectory = "C:\\"
+                CheckFileExists = true,
+                CheckPathExists = true,
+                InitialDirectory = "C:\\",
+                Filter = "LinIDE Project Files (*.linproj)|*.linproj"
             };
 
             if (openFolderDialog.ShowDialog() == true)
             {
-                App.Current.Properties["ProjectPath"] = openFolderDialog.FolderName;
-                App.Current.Properties["ProjectName"] = Path.GetFileName(openFolderDialog.FolderName);
+                string fileDirectory = Path.GetDirectoryName(openFolderDialog.FileName);
 
-                MetaDataFile.CreateMetaFile(openFolderDialog.FolderName, Path.GetFileName(openFolderDialog.FolderName));
-                // MetaDataFile.SetMetaValue("ProjectName", "Test123");
-                Debug.WriteLine(MetaDataFile.GetMetaValue("EditorSettings.IndentationSize"));
+                MetaDataFile.CreateMetaFile(fileDirectory, Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
+
+                MetaDataFile.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
+                MetaDataFile.SetMetaValue("ProjectPath", fileDirectory);
+             
                 window.Close();
             }
 

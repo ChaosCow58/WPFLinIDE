@@ -49,7 +49,7 @@ namespace WPFLinIDE01.Core
             terminal.ProcessInterface.StartProcess(process.StartInfo);
             terminal.OnConsoleInput += Terminal_OnConsoleInput;
 
-            terminal.ProcessInterface.WriteInput($"cd \"{App.Current.Properties["ProjectPath"]}\"");
+            terminal.ProcessInterface.WriteInput($"cd '{MetaDataFile.GetMetaValue<string>("ProjectPath")}'");
 
             terminal.IsInputEnabled = true;
             terminal.AutoScroll = true;

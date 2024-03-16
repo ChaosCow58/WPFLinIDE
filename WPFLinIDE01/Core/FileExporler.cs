@@ -116,10 +116,10 @@ namespace WPFLinIDE01.Core
 
         public void DisplayFileSystem()
         {
-            string rootFolder = App.Current.Properties["ProjectPath"].ToString();
+            string rootFolder = MetaDataFile.GetMetaValue<string>("ProjectPath");
 
             ExplorlerTreeViewItem rootNode = new ExplorlerTreeViewItem();
-            rootNode.Header = CreateHeader(App.Current.Properties["ProjectName"].ToString(), true); // Indicate it's a folder
+            rootNode.Header = CreateHeader(MetaDataFile.GetMetaValue<string>("ProjectName"), true); // Indicate it's a folder
             rootNode.Tag = rootFolder;
             treeview.Items.Add(rootNode);
 
@@ -419,7 +419,7 @@ namespace WPFLinIDE01.Core
 
         private string ConvertToRelativePath(string fullPath)
         {
-            int projectNameIndex = fullPath.IndexOf(App.Current.Properties["ProjectName"].ToString());
+            int projectNameIndex = fullPath.IndexOf(MetaDataFile.GetMetaValue<string>("ProjectName"));
 
             string rootDirectory = string.Empty; // Root directory path
 
@@ -508,27 +508,29 @@ namespace WPFLinIDE01.Core
 
                 TextEditorOptions options = new TextEditorOptions()
                 {
-                    IndentationSize = 6,
-                    ConvertTabsToSpaces = true,
-                    HighlightCurrentLine = true,
-                    EnableHyperlinks = true,
-                    RequireControlModifierForHyperlinkClick = true,
-                    EnableImeSupport = true,
-                    CutCopyWholeLine = true
+                    IndentationSize                         = MetaDataFile.GetMetaValue<int>("EditorSettings.IndentationSize"),
+                    ConvertTabsToSpaces                     = MetaDataFile.GetMetaValue<bool>("EditorSettings.ConvertTabsToSpaces"),
+                    HighlightCurrentLine                    = MetaDataFile.GetMetaValue<bool>("EditorSettings.HighlightCurrentLine"),
+                    EnableHyperlinks                        = MetaDataFile.GetMetaValue<bool>("EditorSettings.EnableHyperlinks"),
+                    RequireControlModifierForHyperlinkClick = MetaDataFile.GetMetaValue<bool>("EditorSettings.RequireControlModifierForHyperlinkClick"),
+                    EnableImeSupport                        = MetaDataFile.GetMetaValue<bool>("EditorSettings.EnableImeSupport"),
+                    CutCopyWholeLine                        = MetaDataFile.GetMetaValue<bool>("EditorSettings.CutCopyWholeLine")
                 };
 
                 editor = new TextEditor()
                 {
                     MaxHeight = 500,
-                    ShowLineNumbers = true,
                     HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
                     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                     Background = Brushes.Transparent,
                     BorderThickness = new Thickness(0),
-                    FontSize = 15,
                     SyntaxHighlighting = mainWindow.SyntaxHighlighting,
-                    Foreground = Brushes.White,
+
+                    ShowLineNumbers = MetaDataFile.GetMetaValue<bool>("EditorSettings.ShowLineNumbers"),
+                    FontSize = MetaDataFile.GetMetaValue<double>("EditorSettings.FontSize"),
+                    Foreground = MetaDataFile.GetMetaValue<Brush>("EditorSettings.Foreground"),
                     LineNumbersForeground = Brushes.White,
+                    
                     Options = options
                 };
 

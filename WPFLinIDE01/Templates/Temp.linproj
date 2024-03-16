@@ -12,6 +12,11 @@
 		"RequireControlModifierForHyperlinkClick": true,
 		"EnableImeSupport": true,
 		"CutCopyWholeLine": true,
-		"ShowLineNumbers": true
+		"ShowLineNumbers": true,
+		"FontSize": 15.0,
+		"Foreground": {
+			"Type": "SolidColorBrush",
+			"Color": "#FFFFFFFF"
+		}
 	}
 }

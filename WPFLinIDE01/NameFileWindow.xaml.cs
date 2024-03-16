@@ -25,6 +25,7 @@ namespace WPFLinIDE01
         {
             InitializeComponent();
             this.Owner = App.Current.MainWindow;
+
             if (!string.IsNullOrEmpty(App.Current.Properties["DotPath"].ToString()))
             {
                 DirectoryPath = App.Current.Properties["DotPath"].ToString();

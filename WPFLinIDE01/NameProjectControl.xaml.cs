@@ -24,13 +24,6 @@ namespace WPFLinIDE01
         {
             Window window = Window.GetWindow(this);
 
-            App.Current.Properties["ProjectName"] = tbProjectName.Text; 
-
-            if (App.Current.Properties["ProjectName"] == null)
-            {
-                return;
-            }
-
 
             OpenFolderDialog openFolderDialog = new OpenFolderDialog()
             {
@@ -40,13 +33,16 @@ namespace WPFLinIDE01
 
             if (openFolderDialog.ShowDialog() == true)
             {
-                DirectoryInfo diretoryPath = Directory.CreateDirectory(Path.Combine(openFolderDialog.FolderName, App.Current.Properties["ProjectName"].ToString()));
+                DirectoryInfo diretoryPath = Directory.CreateDirectory(Path.Combine(openFolderDialog.FolderName, tbProjectName.Text));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "Assets"));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "Resources"));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "bin"));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, @"bin\Logs"));
 
                 MetaDataFile.CreateMetaFile(diretoryPath.FullName, tbProjectName.Text);
+
+                MetaDataFile.SetMetaValue("ProjectName", tbProjectName.Text);
+                MetaDataFile.SetMetaValue("ProjectPath", diretoryPath.FullName);
 
                 FileStream basicFile = File.Create(Path.Combine(diretoryPath.FullName, "Program.cs"));
 
@@ -65,10 +61,6 @@ namespace {diretoryPath.Name}
     }}
 }}");
                 }
-
-                App.Current.Properties["ProjectPath"] = diretoryPath.FullName;
-                App.Current.Properties["ProjectName"] = diretoryPath.Name;
-
                 window.Close();
             }
         }
