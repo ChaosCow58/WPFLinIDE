@@ -8,25 +8,31 @@ using System.Windows;
 using System.Reflection;
 
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 
 namespace WPFLinIDE01.Core
 {
-    internal static class MetaData
-    {
-        public static string ProjectName = string.Empty;
-    }
-
     public static class MetaDataFile
     {
         private static string filePath = string.Empty;
         private static string projectName = string.Empty;
         private static string fullPath = string.Empty;
+        private static string globalFilePath = string.Empty;
 
         public static void CreateMetaFile(string filePath, string projectName)
         {
             string fullPath = @$"{Path.Combine(filePath, projectName)}.linproj";
-            if (!File.Exists(fullPath))
+         
+            string globalDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LinIDE");
+            string globalFilePath = Path.Combine(globalDataPath, "Global.linproj");
+
+            if (!Directory.Exists(globalDataPath))
+            { 
+                Directory.CreateDirectory(globalDataPath);
+            }
+
+            if (!File.Exists(globalFilePath))
             {
                 Assembly assembly = typeof(MainWindow).Assembly;
 
@@ -46,7 +52,7 @@ namespace WPFLinIDE01.Core
                             return;
                         }
 
-                        using (StreamWriter sm = new StreamWriter(@$"{fullPath}"))
+                        using (StreamWriter sm = new StreamWriter(@$"{globalFilePath}"))
                         {
                             sm.WriteLine(reader.ReadToEnd());
                             sm.Close();
@@ -58,17 +64,31 @@ namespace WPFLinIDE01.Core
                 }
             }
 
-            string localDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LinIDE");
-            string loaclFilePath = Path.Combine(localDataPath, "global.linproj");
+            if (!File.Exists(fullPath))
+            {
+                using (StreamReader reader = new StreamReader(globalFilePath))
+                {
+                    if (reader == null)
+                    {
+                        MessageBox.Show("Unable to read Project File.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
-            using (StreamWriter sm = new StreamWriter(loaclFilePath))
-            { 
-                // TODO: Add Global meta file
+                    using (StreamWriter sm = new StreamWriter(@$"{fullPath}"))
+                    {
+                        sm.WriteLine(reader.ReadToEnd());
+                        sm.Close();
+                    }
+
+                    reader.Close();
+                }
+                  
             }
 
             MetaDataFile.filePath = filePath;
             MetaDataFile.projectName = projectName;
             MetaDataFile.fullPath = fullPath;
+            MetaDataFile.globalFilePath = globalFilePath;
         }
 
         public static void SetMetaValue(string key, string value, bool toGlobal = false)
@@ -103,13 +123,44 @@ namespace WPFLinIDE01.Core
             }
             else
             {
-                if (key == "all")
+                if (key == "Settings")
                 {
+                    dynamic localMeta = JsonConvert.DeserializeObject(File.ReadAllText(fullPath));
+                    dynamic globalMeta = JsonConvert.DeserializeObject(File.ReadAllText(globalFilePath));
 
+                    globalMeta["EditorSettings"] = localMeta["EditorSettings"];
+
+                    File.WriteAllText(globalFilePath, JsonConvert.SerializeObject(globalMeta, Formatting.Indented));
+
+                    Debug.WriteLine("EditorSettings updated successfully!");
                 }
                 else
-                { 
-                
+                {
+                    dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(globalFilePath));
+
+                    if (key.Contains("."))
+                    {
+                        string[] keys = key.Split('.');
+                        string nestedKey = keys[keys.Length - 1];
+
+                        if (data[keys[keys.Length - 2]][nestedKey] == null)
+                        {
+                            throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
+                        }
+
+                        data["EditorSettings"][nestedKey] = value;
+                        File.WriteAllText(fullPath, JsonConvert.SerializeObject(data, Formatting.Indented));
+                    }
+                    else
+                    {
+                        if (data[key] == null)
+                        {
+                            throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
+                        }
+
+                        data[key] = value;
+                        File.WriteAllText(fullPath, JsonConvert.SerializeObject(data, Formatting.Indented));
+                    }
                 }
             }
         }
@@ -146,11 +197,34 @@ namespace WPFLinIDE01.Core
                 }
             }
             else
-            { 
-            
+            {
+                dynamic data = JsonConvert.DeserializeObject<dynamic>(File.ReadAllText(globalFilePath));
+
+                if (key.Contains("."))
+                {
+                    string[] keys = key.Split('.');
+
+                    string nestedKey = keys[keys.Length - 1];
+
+                    if (data[keys[keys.Length - 2]][nestedKey] == null)
+                    {
+                        throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
+                    }
+
+                    result = data["EditorSettings"][nestedKey];
+                }
+                else
+                {
+                    if (data[key] == null)
+                    {
+                        throw new ArgumentException($"'{key}' does not exist in \"{fullPath}\".");
+                    }
+
+                    result = data[key];
+                }
             }
 
             return result;
         }
-    }
-}
+    } // Class
+} // Namespace

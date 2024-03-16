@@ -95,6 +95,9 @@ namespace WPFLinIDE01
                 cmdTerminal.process.Kill();
                 cmdTerminal.terminal.Dispose();
             }
+
+            MetaDataFile.SetMetaValue("Settings", null, true);
+            Debug.WriteLine(MetaDataFile.GetMetaValue("Compiler", true));
         }
         
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
