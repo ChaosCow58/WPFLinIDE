@@ -47,7 +47,7 @@ namespace WPFLinIDE01.Core
             process.Start();
 
             terminal.ProcessInterface.StartProcess(process.StartInfo);
-            terminal.OnConsoleInput += Terminal_OnConsoleInput;
+            // terminal.OnConsoleInput += Terminal_OnConsoleInput;
 
             terminal.ProcessInterface.WriteInput($"cd '{MetaDataFile.GetMetaValue<string>("ProjectPath")}'");
 
@@ -59,7 +59,9 @@ namespace WPFLinIDE01.Core
             host = new WindowsFormsHost();
             host.Child = terminal;
 
-            terminalGrid.Children.Add(host);
+            MainWindow window = (MainWindow)App.Current.MainWindow;
+            window.gTermialPanel.Children.Add(host);
+            window.gTermialPanel.InvalidateVisual();
         }
 
         private void Terminal_OnConsoleInput(object sender, ConsoleControl.ConsoleEventArgs args)

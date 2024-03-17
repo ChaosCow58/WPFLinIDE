@@ -61,6 +61,7 @@ namespace {diretoryPath.Name}
     }}
 }}");
                 }
+                App.Current.Properties["projectOpened"] = true;
                 window.Close();
             }
         }

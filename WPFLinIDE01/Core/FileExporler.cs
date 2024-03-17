@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 
 using ICSharpCode.AvalonEdit;
 
+
 namespace WPFLinIDE01.Core
 {
     public enum ItemType
@@ -257,7 +258,41 @@ namespace WPFLinIDE01.Core
 
         private void ItemDeleteMenuItem_Click(object parameter)
         {
-            Debug.WriteLine("Delete Folder");
+            ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)treeview.SelectedItem;
+
+            if (selectedItem != null)
+            {
+                if (selectedItem.ItemType == ItemType.File)
+                {
+                    MessageBoxResult deleteMsgBox = MessageBox.Show($"Are sure you want to delete \"{Path.GetFileName(selectedItem.Tag.ToString())}\"?", "Delete File", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                    if (deleteMsgBox == MessageBoxResult.Yes)
+                    {
+                        if (File.Exists(selectedItem.Tag.ToString()))
+                        {
+                            File.Delete(selectedItem.Tag.ToString());
+                        }
+
+                        treeview.Items.Clear();
+                        DisplayFileSystem();
+                    }
+                }
+                else if (selectedItem.ItemType == ItemType.Folder)
+                {
+                    MessageBoxResult deleteMsgBox = MessageBox.Show($"Are sure you want to delete \"{selectedItem.Tag}\"?", "Delete File", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                    if (deleteMsgBox == MessageBoxResult.Yes)
+                    {
+                        if (Directory.Exists(selectedItem.Tag.ToString()))
+                        { 
+                            Directory.Delete(selectedItem.Tag.ToString());
+                        }
+
+                        treeview.Items.Clear();
+                        DisplayFileSystem();
+                    }
+                }
+            }
         }
 
         private void ItemRenameMenuItem_Click(object parameter)

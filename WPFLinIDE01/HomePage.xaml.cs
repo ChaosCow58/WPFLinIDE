@@ -19,14 +19,12 @@ namespace WPFLinIDE01
 
     public partial class HomePage : Window
     {
-        public static HomePage CurrentInstance { get; private set; }
-
         public HomePage()
         {
             InitializeComponent();
             SetUserControl(new HomeControl());
-            
-            CurrentInstance = this;
+
+            App.Current.Properties["projectOpened"] = false;
         }
 
         public void SetUserControl(UserControl userControl)

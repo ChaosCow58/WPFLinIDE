@@ -53,6 +53,10 @@ namespace WPFLinIDE01
             homePage = new HomePage();
             homePage.ShowDialog();
 
+            if (!(bool)App.Current.Properties["projectOpened"])
+            {
+                this.Close();
+            }
 
             fileExporler = new FileExporler(tvFileTree, tcFileTabs);
             tbEditor = fileExporler.editor;
@@ -103,6 +107,8 @@ namespace WPFLinIDE01
 
 
             DataContext = this;
+
+            // LinMessageBox.Show("");
         }
 
         #region Commands
@@ -357,13 +363,6 @@ namespace WPFLinIDE01
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button clickedItem)
-            {
-                if (clickedItem.ContextMenu != null && clickedItem.ContextMenu.IsOpen == false)
-                {
-                    clickedItem.ContextMenu.IsOpen = true;
-                }
-            }
             e.Handled = true;
         }
 
@@ -416,6 +415,33 @@ namespace WPFLinIDE01
             {
                fileExporler.tabControl.Items.Remove(tabItem);
             }
+        }
+
+        private void btMimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void btMaximze_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+            }
+            else
+            {
+                this.WindowState = WindowState.Maximized;
+            }
+        }
+
+        private void btClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void bMenu_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this.DragMove();
         }
     }
 }

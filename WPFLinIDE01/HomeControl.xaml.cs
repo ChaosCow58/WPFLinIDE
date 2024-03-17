@@ -50,7 +50,8 @@ namespace WPFLinIDE01
 
                 MetaDataFile.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
                 MetaDataFile.SetMetaValue("ProjectPath", fileDirectory);
-             
+
+                App.Current.Properties["projectOpened"] = true;
                 window.Close();
             }
 

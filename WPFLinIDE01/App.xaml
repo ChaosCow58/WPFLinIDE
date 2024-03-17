@@ -8,6 +8,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/GridSplitterStyle.xaml"/>
                 <ResourceDictionary Source="Resources/ScrollBarStyle.xaml"/>
+                <ResourceDictionary Source="Resources/ClosingButtonsStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
