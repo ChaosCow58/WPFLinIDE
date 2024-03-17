@@ -7,7 +7,7 @@
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         mc:Ignorable="d"
         Title="IDE" Height="800" Width="1200" BorderBrush="#FF454545" BorderThickness="1" WindowStartupLocation="CenterScreen" MouseDown="Window_MouseDown"
-        Background="#1E1E1E" WindowStyle="None" ResizeMode="CanResizeWithGrip" AllowsTransparency="True">
+        Background="#1E1E1E" WindowStyle="None" ResizeMode="CanResizeWithGrip">
 
     <Window.InputBindings>
         <KeyBinding Key="C"    Modifiers="Ctrl+Alt" Command="{Binding ShowPowerShell_Command}"/>
@@ -17,6 +17,7 @@
         <KeyBinding Key="Down" Modifiers="Alt"      Command="{Binding MoveLineDown_Command}"/>
         <KeyBinding Key="F5"   Modifiers=""         Command="{Binding RunCode_Command}"/>
         <KeyBinding Key="F2"   Modifiers=""         Command="{Binding Rename_Command}"/>
+        <KeyBinding Key="Del"  Modifiers=""         Command="{Binding Delete_Command}"/>
     </Window.InputBindings>
 
     <Grid Name="gMain">
@@ -67,9 +68,9 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Height="29" HorizontalAlignment="Right" Margin="0,0,2,0" Width="72">
-                    <Button Content="-"        Style="{StaticResource ClosingButtonStyle}"   FontFamily="Lucida Sans Unicode" Width="24" BorderThickness="0" FontSize="15" Foreground="WhiteSmoke" Padding="0,0,0,0"   Click="btMimize_Click"/>
-                    <Button Content="&#x25A1;" Style="{StaticResource ClosingButtonStyle}"   FontFamily="Lucida Sans Unicode" Width="24" BorderThickness="0" FontSize="18" Foreground="WhiteSmoke" Margin="0,0,0,1.5"  Click="btMaximze_Click"/>
-                    <Button Content="&#x2715;" Style="{StaticResource ClosingXButtonStyle}"  FontFamily="Lucida Sans Unicode" Width="24" BorderThickness="0" FontSize="15" Foreground="WhiteSmoke" Padding="0,0,0,0"   Click="btClose_Click"/>
+                    <Button Content="-"        Style="{DynamicResource ClosingButtonStyle}"   FontFamily="Lucida Sans Unicode" Width="24" BorderThickness="0" FontSize="15" Foreground="WhiteSmoke" Padding="0,0,0,0"   Click="btMimize_Click"  ToolTip="Minimize"/>
+                    <Button Content="&#x25A1;" Style="{DynamicResource ClosingButtonStyle}"   FontFamily="Lucida Sans Unicode" Width="24" BorderThickness="0" FontSize="18" Foreground="WhiteSmoke" Margin="0,0,0,2"    Click="btMaximze_Click" ToolTip="Maximize"/>
+                    <Button Content="&#x2715;" Style="{DynamicResource ClosingXButtonStyle}"  FontFamily="Lucida Sans Unicode" Width="24" BorderThickness="0" FontSize="15" Foreground="WhiteSmoke" Padding="0,0,0,0"   Click="btClose_Click"   ToolTip="Close"/>
                 </StackPanel>
             </Grid>
         </Border>

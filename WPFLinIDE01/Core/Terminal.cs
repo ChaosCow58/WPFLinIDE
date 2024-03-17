@@ -61,7 +61,6 @@ namespace WPFLinIDE01.Core
 
             MainWindow window = (MainWindow)App.Current.MainWindow;
             window.gTermialPanel.Children.Add(host);
-            window.gTermialPanel.InvalidateVisual();
         }
 
         private void Terminal_OnConsoleInput(object sender, ConsoleControl.ConsoleEventArgs args)

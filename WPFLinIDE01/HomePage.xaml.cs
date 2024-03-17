@@ -32,5 +32,35 @@ namespace WPFLinIDE01
            ccHomePanel.Children.Clear();
            ccHomePanel.Children.Add(userControl);
         }
+
+        private void btMimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void btMaximze_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+            }
+            else
+            {
+                this.WindowState = WindowState.Maximized;
+            }
+        }
+
+        private void btClose_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void bTopBar_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+            { 
+                this.DragMove();
+            }
+        }
     }
 }

@@ -42,6 +42,7 @@ namespace WPFLinIDE01
         public ICommand MoveLineUp_Command { get; }
         public ICommand MoveLineDown_Command { get; }
         public ICommand Rename_Command { get; }
+        public ICommand Delete_Command { get; }
 
         public IHighlightingDefinition SyntaxHighlighting { get; set; }
         private TextEditor tbEditor;
@@ -74,6 +75,7 @@ namespace WPFLinIDE01
             MoveLineUp_Command = new RelayCommand(MoveLineUp);
             MoveLineDown_Command = new RelayCommand(MoveLineDown);
             Rename_Command = new RelayCommand(RenameExporler);
+            Delete_Command = new RelayCommand(DeleteExporler);
 
             lRunCode.Content = $"Run {MetaDataFile.GetMetaValue<string>("ProjectName")}";
 
@@ -357,6 +359,11 @@ namespace WPFLinIDE01
         private void RenameExporler(object parameter) 
         {
             fileExporler.ItemRenameMenuItemBase();
+        }
+
+        private void DeleteExporler(object parameter)
+        {
+            fileExporler.IteDeleteMenuItemBase();
         }
 
         #endregion Commands

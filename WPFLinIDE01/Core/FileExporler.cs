@@ -158,9 +158,16 @@ namespace WPFLinIDE01.Core
                 MenuItem[] miFolderItems = {
                     new MenuItem()
                     {
-                        Header = "Add",
+                        Header = "Add Class",
                         Foreground = Brushes.Black,
                         Command = new RelayCommand(ItemAddMenuItem_Click)
+                    },
+
+                    new MenuItem()
+                    {
+                        Header = "Add Folder",
+                        Foreground = Brushes.Black,
+                        Command = new RelayCommand(ItemAddFolder_Click)
                     },
 
                     new MenuItem()
@@ -258,6 +265,11 @@ namespace WPFLinIDE01.Core
 
         private void ItemDeleteMenuItem_Click(object parameter)
         {
+            IteDeleteMenuItemBase();
+        }
+
+        public void IteDeleteMenuItemBase()
+        {
             ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)treeview.SelectedItem;
 
             if (selectedItem != null)
@@ -275,6 +287,15 @@ namespace WPFLinIDE01.Core
 
                         treeview.Items.Clear();
                         DisplayFileSystem();
+
+                        foreach (TabItem tabItem in tabControl.Items)
+                        {
+                            if (tabItem.Tag == selectedItem.Tag)
+                            {
+                                tabControl.Items.Remove(tabItem);
+                                break;
+                            }
+                        }
                     }
                 }
                 else if (selectedItem.ItemType == ItemType.Folder)
@@ -284,7 +305,7 @@ namespace WPFLinIDE01.Core
                     if (deleteMsgBox == MessageBoxResult.Yes)
                     {
                         if (Directory.Exists(selectedItem.Tag.ToString()))
-                        { 
+                        {
                             Directory.Delete(selectedItem.Tag.ToString());
                         }
 
@@ -423,32 +444,73 @@ namespace WPFLinIDE01.Core
 
                 if (!string.IsNullOrEmpty(App.Current.Properties["FileName"]?.ToString()))
                 {
-                    using (StreamWriter sm = new StreamWriter(@$"{fullPath}\{App.Current.Properties["FileName"]}.cs"))
+                    string filePath = @$"{fullPath}\{App.Current.Properties["FileName"]}.cs";
+                    if (File.Exists(filePath))
                     {
-                        if (File.Exists(@$"{fullPath}\{App.Current.Properties["FileName"]}.cs"))
+                        MessageBoxResult messageBoxResult = MessageBox.Show("This file already exists. Do you want to replace it?", "Replace File", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+                        if (messageBoxResult == MessageBoxResult.Yes)
                         {
-                            MessageBoxResult messageBoxResult = MessageBox.Show("This file already exists do you want to replace it?", "Replace File", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
-                            if (messageBoxResult == MessageBoxResult.Yes)
+                            using (StreamWriter sm = new StreamWriter(filePath))
                             {
                                 sm.WriteLine($"using System;\n\nnamespace {App.Current.Properties["DotPath"]}\n{{\n\tclass {App.Current.Properties["FileName"]}\n\t{{\n\n\t}}\n}}");
-                                InitializeFileSystemWatcher(@$"{fullPath}\{App.Current.Properties["FileName"]}.cs");
-                                sm.Close();
-                            }
-                            else
-                            {
-                                sm.Close();
+                                InitializeFileSystemWatcher(filePath);
                             }
                         }
                     }
+                    else
+                    {
+                        using (StreamWriter sm = new StreamWriter(filePath))
+                        {
+                            sm.WriteLine($"using System;\n\nnamespace {App.Current.Properties["DotPath"]}\n{{\n\tclass {App.Current.Properties["FileName"]}\n\t{{\n\n\t}}\n}}");
+                            InitializeFileSystemWatcher(filePath);
+                        }
+                    }
+
 
                     App.Current.Properties["FileName"] = null;
 
                     treeview.Items.Clear();
                     DisplayFileSystem();
-                    
-
 
                 }
+            }
+        }
+
+        private void ItemAddFolder_Click(object parameter)
+        {
+            ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)treeview.SelectedItem;
+
+            if (selectedItem != null) 
+            {
+                string fullPath = selectedItem.Tag.ToString();
+                string convertedPath = ConvertToRelativePath(fullPath);
+
+                App.Current.Properties["FilePath"] = convertedPath.Replace('/', '\\');
+
+                NameFolderWindow nameFolderWindow  = new NameFolderWindow();
+                nameFolderWindow.ShowDialog();
+
+
+                string folderPath = @$"{fullPath}\{App.Current.Properties["FolderName"]}";
+
+                if (Directory.Exists(folderPath))
+                {
+                    MessageBoxResult messageBoxResult = MessageBox.Show("This folder already exists. Do you want to replace it?", "Replace Folder", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+                    if (messageBoxResult == MessageBoxResult.Yes)
+                    {
+                        Directory.CreateDirectory(folderPath);
+                    }
+                }
+                else
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+
+                App.Current.Properties["FolderName"] = null;
+
+                treeview.Items.Clear();
+                DisplayFileSystem();
             }
         }
 
@@ -565,7 +627,7 @@ namespace WPFLinIDE01.Core
                     FontSize = MetaDataFile.GetMetaValue<double>("EditorSettings.FontSize"),
                     Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(MetaDataFile.GetMetaValue<string>("EditorSettings.Foreground"))),
                     LineNumbersForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(MetaDataFile.GetMetaValue<string>("EditorSettings.LineNumbersForeground"))),
-                    
+
                     Options = options
                 };
 
@@ -608,7 +670,7 @@ namespace WPFLinIDE01.Core
         private void TabItem_LostFocus(object sender, RoutedEventArgs e)
         {
             TabItem tabItem = (TabItem)sender;
-            tabItem.Background = Brushes.Red;
+            tabItem.Background = Brushes.Gray;
         }
 
         private void TabItem_GotFocus(object sender, RoutedEventArgs e)
@@ -647,7 +709,10 @@ namespace WPFLinIDE01.Core
                 {
                     try
                     {
-                        editor.Text = File.ReadAllText(e.FullPath);
+                        if (editor != null)
+                        { 
+                            editor.Text = File.ReadAllText(e.FullPath);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -657,8 +722,5 @@ namespace WPFLinIDE01.Core
 
             }
         }
-
-
-
     } // Class
 } // Namespace

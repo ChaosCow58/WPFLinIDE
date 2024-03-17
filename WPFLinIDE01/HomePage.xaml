@@ -6,6 +6,34 @@
         xmlns:local="clr-namespace:WPFLinIDE01"
         mc:Ignorable="d"
         Title="Create/Open a Project" Height="450" Width="500" BorderBrush="#FF454545" BorderThickness="1" 
-        Background="Gray" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
-    <DockPanel x:Name="ccHomePanel" Visibility="Visible"/>
+        Background="Gray" ResizeMode="CanResizeWithGrip" WindowStyle="None" WindowStartupLocation="CenterScreen" AllowsTransparency="True">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border BorderBrush="#FF454545" BorderThickness="0,0,0,1" MouseDown="bTopBar_MouseDown">
+            <Grid MouseDown="bTopBar_MouseDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="212*"/>
+                    <ColumnDefinition Width="37*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                    <Image Source="./Assets/icon.png" Height="32" ToolTip="LinIDE" Margin="5,0,0,0"/>
+                    <Label Grid.Column="0" Content="Create or Open a Project" Foreground="White" FontFamily="Poppins" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="18" Margin="5,0,0,0" Width="381"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Height="29" HorizontalAlignment="Right" Margin="0,0,3,0" Width="72">
+                    <Button Content="-"        Style="{DynamicResource ClosingButtonStyle}"   FontFamily="Lucida Sans Unicode" Width="24" BorderThickness="0" FontSize="15" Foreground="WhiteSmoke" Padding="0,0,0,0"   Click="btMimize_Click"  ToolTip="Minimize"/>
+                    <Button Content="&#x25A1;" Style="{DynamicResource ClosingButtonStyle}"   FontFamily="Lucida Sans Unicode" Width="24" BorderThickness="0" FontSize="18" Foreground="WhiteSmoke" Margin="0,0,0,2"    Click="btMaximze_Click" ToolTip="Maximize"/>
+                    <Button Content="&#x2715;" Style="{DynamicResource ClosingXButtonStyle}"  FontFamily="Lucida Sans Unicode" Width="24" BorderThickness="0" FontSize="15" Foreground="WhiteSmoke" Padding="0,0,0,0"   Click="btClose_Click"   ToolTip="Close"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <DockPanel x:Name="ccHomePanel" Grid.Row="1" Visibility="Visible" Grid.ColumnSpan="2"/>
+    </Grid>
 </Window>
