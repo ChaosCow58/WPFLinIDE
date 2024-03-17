@@ -528,8 +528,8 @@ namespace WPFLinIDE01.Core
 
                     ShowLineNumbers = MetaDataFile.GetMetaValue<bool>("EditorSettings.ShowLineNumbers"),
                     FontSize = MetaDataFile.GetMetaValue<double>("EditorSettings.FontSize"),
-                    Foreground = MetaDataFile.GetMetaValue<Brush>("EditorSettings.Foreground"),
-                    LineNumbersForeground = Brushes.White,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(MetaDataFile.GetMetaValue<string>("EditorSettings.Foreground"))),
+                    LineNumbersForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(MetaDataFile.GetMetaValue<string>("EditorSettings.LineNumbersForeground"))),
                     
                     Options = options
                 };

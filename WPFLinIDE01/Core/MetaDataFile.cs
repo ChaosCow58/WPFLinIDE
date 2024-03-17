@@ -9,6 +9,7 @@ using System.Reflection;
 
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Windows.Media.Animation;
 
 
 namespace WPFLinIDE01.Core
@@ -90,7 +91,7 @@ namespace WPFLinIDE01.Core
             MetaDataFile.globalFilePath = globalFilePath;
         }
 
-        public static void SetMetaValue<T>(string key, T value, bool toGlobal = false)
+        public static void SetMetaValue<T>(string key, T value, bool toGlobal = false) where T : IConvertible
         {
             if (!toGlobal)
             {
@@ -164,7 +165,7 @@ namespace WPFLinIDE01.Core
             }
         }
 
-        public static T GetMetaValue<T>(string key, bool fromGlobal = false) 
+        public static T GetMetaValue<T>(string key, bool fromGlobal = false) where T : IConvertible 
         {
             T result = default;
 

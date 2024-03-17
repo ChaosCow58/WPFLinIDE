@@ -14,9 +14,7 @@
 		"CutCopyWholeLine": true,
 		"ShowLineNumbers": true,
 		"FontSize": 15.0,
-		"Foreground": {
-			"Type": "SolidColorBrush",
-			"Color": "#FFFFFFFF"
-		}
+		"Foreground": "#FFFFFF",
+		"LineNumbersForeground": "#FFFFFF"
 	}
 }
