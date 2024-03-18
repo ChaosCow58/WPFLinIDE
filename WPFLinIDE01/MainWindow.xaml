@@ -53,8 +53,8 @@
                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Background="#1E1E1E" Grid.ColumnSpan="2">
                     <Menu Margin="-8,0,0,0" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold" MouseDown="MenuItem_Click">
                         <MenuItem Header="File" Height="35" Width="60" Padding="15,0,0,0">
-                            <MenuItem Name="miOpen" Header="Open Project" Foreground="Black"  Icon="{StaticResource menuOpenIcon}"        Click="miOpen_Click"/>
-                            <MenuItem Name="miSaveItem"    Header="Save File"     Foreground="Black" Icon="{StaticResource menuSaveIcon}" Click="miSave_Click" InputGestureText="Ctrl+S"/>
+                            <MenuItem Name="miOpen"     Header="Open Project" Foreground="Black" Icon="{StaticResource menuOpenIcon}" Click="miOpen_Click"/>
+                            <MenuItem Name="miSaveItem" Header="Save File"    Foreground="Black" Icon="{StaticResource menuSaveIcon}" Click="miSave_Click" InputGestureText="Ctrl+S"/>
                         </MenuItem>
                         <MenuItem Header="Edit" Height="35" Width="60" Padding="15,0,0,0">
 

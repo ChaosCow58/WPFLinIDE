@@ -59,8 +59,7 @@ namespace WPFLinIDE01.Core
             host = new WindowsFormsHost();
             host.Child = terminal;
 
-            MainWindow window = (MainWindow)App.Current.MainWindow;
-            window.gTermialPanel.Children.Add(host);
+            terminalGrid.Children.Add(host);
         }
 
         private void Terminal_OnConsoleInput(object sender, ConsoleControl.ConsoleEventArgs args)

@@ -17,6 +17,7 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 
 using Microsoft.Win32;
+using Mono.CSharp;
 
 #pragma warning disable CA1416
 
@@ -47,21 +48,29 @@ namespace WPFLinIDE01
         public ICommand Delete_Command { get; }
 
         public IHighlightingDefinition SyntaxHighlighting { get; set; }
+        
         private TextEditor tbEditor;
+        
+        private bool skipHome;
 
-        public MainWindow()
+        public MainWindow(bool skipHome)
         {
             InitializeComponent();
 
-            homePage = new HomePage();
-            homePage.ShowDialog();
+            this.skipHome = skipHome;
+
+            if (!this.skipHome)
+            {        
+                homePage = new HomePage();
+                homePage.ShowDialog();
+            }
 
             if (!(bool)App.Current.Properties["projectOpened"])
             {
                 this.Close();
             }
 
-            fileExporler = new FileExporler(tvFileTree, tcFileTabs);
+            fileExporler = new FileExporler(tvFileTree, tcFileTabs, this);
             tbEditor = fileExporler.editor;
             cmdTerminal = new Terminal(gTermialPanel);
 
@@ -85,6 +94,50 @@ namespace WPFLinIDE01
             //{
             //    Debug.WriteLine($"Command: {tbEditor.TextArea.CommandBindings[i]}");
             //}
+            Debug.WriteLine(this);
+        }
+
+        public MainWindow()
+        {
+            InitializeComponent();
+
+          
+            homePage = new HomePage();
+            homePage.ShowDialog();
+            
+
+            if (!(bool)App.Current.Properties["projectOpened"])
+            {
+                this.Close();
+            }
+
+            fileExporler = new FileExporler(tvFileTree, tcFileTabs, this);
+            tbEditor = fileExporler.editor;
+            cmdTerminal = new Terminal(gTermialPanel);
+
+            syntax = new SyntaxHighlight();
+
+            Closing += MainWindow_Closing;
+            Loaded += MainWindow_Loaded;
+
+            ShowPowerShell_Command = new RelayCommand(ShowPowerShell);
+            SaveFile_Command = new RelayCommand(SaveFile);
+            RunCode_Command = new RelayCommand(RunCode);
+            CopyLine_Command = new RelayCommand(CopyLine);
+            MoveLineUp_Command = new RelayCommand(MoveLineUp);
+            MoveLineDown_Command = new RelayCommand(MoveLineDown);
+            Rename_Command = new RelayCommand(RenameExporler);
+            Delete_Command = new RelayCommand(DeleteExporler);
+
+            lRunCode.Content = $"Run {MetaDataFile.GetMetaValue<string>("ProjectName")}";
+
+            //for (int i = 0; i < tbEditor.TextArea.CommandBindings.Count; i++)
+            //{
+            //    Debug.WriteLine($"Command: {tbEditor.TextArea.CommandBindings[i]}");
+            //}
+
+            Debug.WriteLine(this);
+
         }
 
 
@@ -440,8 +493,21 @@ namespace WPFLinIDE01
             this.DragMove();
         }
 
+        public void setProjectOpened(bool value)
+        {
+            App.Current.Properties["projectOpened"] = value;
+        }
+
+        public void setSkipHome(bool value)
+        { 
+            skipHome = value;
+        }
+
         private void miOpen_Click(object sender, RoutedEventArgs e)
         {
+
+            MainWindow mainWindow = new MainWindow(true);
+
             OpenFileDialog openFolderDialog = new OpenFileDialog()
             {
                 Title = "Select a Project",
@@ -460,9 +526,9 @@ namespace WPFLinIDE01
                 MetaDataFile.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
                 MetaDataFile.SetMetaValue("ProjectPath", fileDirectory);
 
-                App.Current.Properties["projectOpened"] = true;
-
-                this.Show();
+                mainWindow.setProjectOpened(true);
+                mainWindow.Show();
+                
             }
         }
     } // Class

@@ -21,10 +21,10 @@ namespace WPFLinIDE01
     {
         public string DirectoryPath { get; }
 
-        public NameFolderWindow()
+        public NameFolderWindow(Window window)
         {
             InitializeComponent();
-            this.Owner = App.Current.MainWindow;
+            this.Owner = window;
 
             if (!string.IsNullOrEmpty(App.Current.Properties["FilePath"]?.ToString()))
             {

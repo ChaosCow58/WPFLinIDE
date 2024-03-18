@@ -56,6 +56,7 @@ namespace WPFLinIDE01
             }
 
         }
+
         private void btNewProject_Click(object sender, RoutedEventArgs e)
         {
             Window window = Window.GetWindow(this);

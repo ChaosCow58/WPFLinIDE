@@ -46,13 +46,14 @@ namespace WPFLinIDE01.Core
 
         public bool openFile = false;
         public string currentFilePath = string.Empty;
+        private Window window;
 
       
-
-        public FileExporler(TreeView treeView, TabControl tabControl)
+        public FileExporler(TreeView treeView, TabControl tabControl, Window window)
         {
             this.treeview = treeView;
             this.tabControl = tabControl;
+            this.window = window;
         }
 
         private void PopulateTreeView(string path, ExplorlerTreeViewItem parentNode)
@@ -439,8 +440,8 @@ namespace WPFLinIDE01.Core
                 App.Current.Properties["DotPath"] = convertedPath.Replace('/', '.');
 
 
-                NameFileWindow nameFileWindow = new NameFileWindow();
-                nameFileWindow.ShowDialog();
+                NameFileWindow nameFileWindow = new NameFileWindow(window);
+                nameFileWindow.ShowWindow();
 
                 if (!string.IsNullOrEmpty(App.Current.Properties["FileName"]?.ToString()))
                 {
@@ -487,7 +488,7 @@ namespace WPFLinIDE01.Core
 
                 App.Current.Properties["FilePath"] = convertedPath.Replace('/', '\\');
 
-                NameFolderWindow nameFolderWindow  = new NameFolderWindow();
+                NameFolderWindow nameFolderWindow  = new NameFolderWindow(window);
                 nameFolderWindow.ShowDialog();
 
 

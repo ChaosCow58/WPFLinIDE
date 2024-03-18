@@ -13,5 +13,16 @@ namespace WPFLinIDE01
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            if (e.Args.Length > 0)
+            {
+                bool parameter = bool.Parse(e.Args[0]);
+                MainWindow main = new MainWindow(parameter);
+                main.Show();
+            }
+        }
     }
 }

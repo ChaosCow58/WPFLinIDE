@@ -21,10 +21,10 @@ namespace WPFLinIDE01
     {
         public string DirectoryPath { get; }
 
-        public NameFileWindow()
+        public NameFileWindow(Window window)
         {
             InitializeComponent();
-            this.Owner = App.Current.MainWindow;
+            this.Owner = window;
 
             if (!string.IsNullOrEmpty(App.Current.Properties["DotPath"].ToString()))
             {
@@ -37,6 +37,11 @@ namespace WPFLinIDE01
             }
 
             DataContext = this;
+        }
+
+        public void ShowWindow()
+        {
+            this.ShowDialog();
         }
 
         private void btCancel_Click(object sender, RoutedEventArgs e)
