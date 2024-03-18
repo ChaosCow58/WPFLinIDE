@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Assets\icon.png" />
+    <None Remove="Assets\open-file.png" />
     <None Remove="Resources\file.png" />
     <None Remove="Resources\folder.png" />
     <None Remove="Resources\save.png" />
@@ -44,6 +45,7 @@
     <Resource Include="Assets\file.png" />
     <Resource Include="Assets\folder.png" />
     <Resource Include="Assets\icon.png" />
+    <Resource Include="Assets\open-file.png" />
     <Resource Include="Assets\save.png" />
   </ItemGroup>
 </Project>

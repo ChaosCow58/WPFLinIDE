@@ -16,6 +16,8 @@ using WPFLinIDE01.Core;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 
+using Microsoft.Win32;
+
 #pragma warning disable CA1416
 
 namespace WPFLinIDE01
@@ -79,10 +81,6 @@ namespace WPFLinIDE01
 
             lRunCode.Content = $"Run {MetaDataFile.GetMetaValue<string>("ProjectName")}";
 
-            BitmapImage icon = new BitmapImage(new Uri("pack://application:,,,/WPFLinIDE01;component/Assets/save.png"));
-            miSaveItem.Icon = new Image { Source = icon };
-
-
             //for (int i = 0; i < tbEditor.TextArea.CommandBindings.Count; i++)
             //{
             //    Debug.WriteLine($"Command: {tbEditor.TextArea.CommandBindings[i]}");
@@ -110,7 +108,6 @@ namespace WPFLinIDE01
 
             DataContext = this;
 
-            // LinMessageBox.Show("");
         }
 
         #region Commands
@@ -149,7 +146,7 @@ namespace WPFLinIDE01
         {
             SaveFileBase();
         }
-        private void miSave_MenuItem_Click(object sender, RoutedEventArgs e)
+        private void miSave_Click(object sender, RoutedEventArgs e)
         {
             SaveFileBase();
         }
@@ -373,14 +370,6 @@ namespace WPFLinIDE01
             e.Handled = true;
         }
 
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-       /*     ExplorlerTreeViewItem selectedItem = (ExplorlerTreeViewItem)tvFileTree.SelectedItem;
-
-            StackPanel stackPanel = Utility.FindVisualChild<StackPanel>(selectedItem);
-            stackPanel.ContextMenu.Visibility = Visibility.Hidden;*/
-        }
-
         public void tbEditor_TextChanged(object sender, EventArgs e)
         {
             TabItem tabItem = (TabItem)fileExporler.tabControl.SelectedItem;
@@ -450,5 +439,31 @@ namespace WPFLinIDE01
         {
             this.DragMove();
         }
-    }
-}
+
+        private void miOpen_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFolderDialog = new OpenFileDialog()
+            {
+                Title = "Select a Project",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                InitialDirectory = "C:\\",
+                Filter = "LinIDE Project Files (*.linproj)|*.linproj"
+            };
+
+            if (openFolderDialog.ShowDialog() == true)
+            {
+                string fileDirectory = Path.GetDirectoryName(openFolderDialog.FileName);
+
+                MetaDataFile.CreateMetaFile(fileDirectory, Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
+
+                MetaDataFile.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
+                MetaDataFile.SetMetaValue("ProjectPath", fileDirectory);
+
+                App.Current.Properties["projectOpened"] = true;
+
+                this.Show();
+            }
+        }
+    } // Class
+} // Namespace

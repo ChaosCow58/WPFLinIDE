@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WPFLinIDE01"
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         mc:Ignorable="d"
-        Title="IDE" Height="800" Width="1200" BorderBrush="#FF454545" BorderThickness="1" WindowStartupLocation="CenterScreen" MouseDown="Window_MouseDown"
+        Title="IDE" Height="800" Width="1200" BorderBrush="#FF454545" BorderThickness="1" WindowStartupLocation="CenterScreen"
         Background="#1E1E1E" WindowStyle="None" ResizeMode="CanResizeWithGrip">
 
     <Window.InputBindings>
@@ -19,6 +19,11 @@
         <KeyBinding Key="F2"   Modifiers=""         Command="{Binding Rename_Command}"/>
         <KeyBinding Key="Del"  Modifiers=""         Command="{Binding Delete_Command}"/>
     </Window.InputBindings>
+
+    <Window.Resources>
+        <Image x:Key="menuOpenIcon" Source="./Assets/open-file.png"/>
+        <Image x:Key="menuSaveIcon" Source="./Assets/save.png"/>
+    </Window.Resources>
 
     <Grid Name="gMain">
         <Grid.ColumnDefinitions>
@@ -48,8 +53,8 @@
                 <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Background="#1E1E1E" Grid.ColumnSpan="2">
                     <Menu Margin="-8,0,0,0" Background="Transparent" BorderThickness="0" FontSize="16" Foreground="White" FontWeight="DemiBold" MouseDown="MenuItem_Click">
                         <MenuItem Header="File" Height="35" Width="60" Padding="15,0,0,0">
-                            <MenuItem/>
-                            <MenuItem Name="miSaveItem" Header="Save File" Foreground="Black" Click="miSave_MenuItem_Click" Icon="" InputGestureText="Ctrl+S"/>
+                            <MenuItem Name="miOpen" Header="Open Project" Foreground="Black"  Icon="{StaticResource menuOpenIcon}"        Click="miOpen_Click"/>
+                            <MenuItem Name="miSaveItem"    Header="Save File"     Foreground="Black" Icon="{StaticResource menuSaveIcon}" Click="miSave_Click" InputGestureText="Ctrl+S"/>
                         </MenuItem>
                         <MenuItem Header="Edit" Height="35" Width="60" Padding="15,0,0,0">
 
