@@ -46,14 +46,17 @@ namespace WPFLinIDE01.Core
 
         public bool openFile = false;
         public string currentFilePath = string.Empty;
-        private Window window;
 
+        private Window window;
+        private MetaDataFile meta;
       
         public FileExporler(TreeView treeView, TabControl tabControl, Window window)
         {
             this.treeview = treeView;
             this.tabControl = tabControl;
             this.window = window;
+
+            meta = (MetaDataFile)App.Current.Properties["MetaData"];
         }
 
         private void PopulateTreeView(string path, ExplorlerTreeViewItem parentNode)
@@ -118,10 +121,10 @@ namespace WPFLinIDE01.Core
 
         public void DisplayFileSystem()
         {
-            string rootFolder = MetaDataFile.GetMetaValue<string>("ProjectPath");
+            string rootFolder = meta.GetMetaValue<string>("ProjectPath");
 
             ExplorlerTreeViewItem rootNode = new ExplorlerTreeViewItem();
-            rootNode.Header = CreateHeader(MetaDataFile.GetMetaValue<string>("ProjectName"), true); // Indicate it's a folder
+            rootNode.Header = CreateHeader(meta.GetMetaValue<string>("ProjectName"), true); // Indicate it's a folder
             rootNode.Tag = rootFolder;
             treeview.Items.Add(rootNode);
 
@@ -517,7 +520,9 @@ namespace WPFLinIDE01.Core
 
         private string ConvertToRelativePath(string fullPath)
         {
-            int projectNameIndex = fullPath.IndexOf(MetaDataFile.GetMetaValue<string>("ProjectName"));
+            int projectNameIndex = fullPath.IndexOf(meta.GetMetaValue<string>("ProjectName"));
+
+            Debug.WriteLine(meta.GetMetaValue<string>("ProjectName"));
 
             string rootDirectory = string.Empty; // Root directory path
 
@@ -525,6 +530,8 @@ namespace WPFLinIDE01.Core
             {
                 rootDirectory = fullPath.Substring(0, projectNameIndex);
             }
+
+            Debug.WriteLine(rootDirectory);
 
 
             // Check if the full path starts with the root directory
@@ -606,13 +613,13 @@ namespace WPFLinIDE01.Core
 
                 TextEditorOptions options = new TextEditorOptions()
                 {
-                    IndentationSize                         = MetaDataFile.GetMetaValue<int>("EditorSettings.IndentationSize"),
-                    ConvertTabsToSpaces                     = MetaDataFile.GetMetaValue<bool>("EditorSettings.ConvertTabsToSpaces"),
-                    HighlightCurrentLine                    = MetaDataFile.GetMetaValue<bool>("EditorSettings.HighlightCurrentLine"),
-                    EnableHyperlinks                        = MetaDataFile.GetMetaValue<bool>("EditorSettings.EnableHyperlinks"),
-                    RequireControlModifierForHyperlinkClick = MetaDataFile.GetMetaValue<bool>("EditorSettings.RequireControlModifierForHyperlinkClick"),
-                    EnableImeSupport                        = MetaDataFile.GetMetaValue<bool>("EditorSettings.EnableImeSupport"),
-                    CutCopyWholeLine                        = MetaDataFile.GetMetaValue<bool>("EditorSettings.CutCopyWholeLine")
+                    IndentationSize                         = meta.GetMetaValue<int>("EditorSettings.IndentationSize"),
+                    ConvertTabsToSpaces                     = meta.GetMetaValue<bool>("EditorSettings.ConvertTabsToSpaces"),
+                    HighlightCurrentLine                    = meta.GetMetaValue<bool>("EditorSettings.HighlightCurrentLine"),
+                    EnableHyperlinks                        = meta.GetMetaValue<bool>("EditorSettings.EnableHyperlinks"),
+                    RequireControlModifierForHyperlinkClick = meta.GetMetaValue<bool>("EditorSettings.RequireControlModifierForHyperlinkClick"),
+                    EnableImeSupport                        = meta.GetMetaValue<bool>("EditorSettings.EnableImeSupport"),
+                    CutCopyWholeLine                        = meta.GetMetaValue<bool>("EditorSettings.CutCopyWholeLine")
                 };
 
                 editor = new TextEditor()
@@ -624,10 +631,10 @@ namespace WPFLinIDE01.Core
                     BorderThickness = new Thickness(0),
                     SyntaxHighlighting = mainWindow.SyntaxHighlighting,
 
-                    ShowLineNumbers = MetaDataFile.GetMetaValue<bool>("EditorSettings.ShowLineNumbers"),
-                    FontSize = MetaDataFile.GetMetaValue<double>("EditorSettings.FontSize"),
-                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(MetaDataFile.GetMetaValue<string>("EditorSettings.Foreground"))),
-                    LineNumbersForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(MetaDataFile.GetMetaValue<string>("EditorSettings.LineNumbersForeground"))),
+                    ShowLineNumbers = meta.GetMetaValue<bool>("EditorSettings.ShowLineNumbers"),
+                    FontSize = meta.GetMetaValue<double>("EditorSettings.FontSize"),
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(meta.GetMetaValue<string>("EditorSettings.Foreground"))),
+                    LineNumbersForeground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(meta.GetMetaValue<string>("EditorSettings.LineNumbersForeground"))),
 
                     Options = options
                 };

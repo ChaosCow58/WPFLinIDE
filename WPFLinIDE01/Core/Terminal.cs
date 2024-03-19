@@ -23,10 +23,12 @@ namespace WPFLinIDE01.Core
 
         private WindowsFormsHost host;
         private Grid terminalGrid;
+        private MetaDataFile meta;
 
         public Terminal(Grid displayGrid) 
         { 
             terminalGrid = displayGrid;
+            meta = (MetaDataFile)App.Current.Properties["MetaData"];
         }
 
         public void CreateTermial()
@@ -49,7 +51,7 @@ namespace WPFLinIDE01.Core
             terminal.ProcessInterface.StartProcess(process.StartInfo);
             // terminal.OnConsoleInput += Terminal_OnConsoleInput;
 
-            terminal.ProcessInterface.WriteInput($"cd '{MetaDataFile.GetMetaValue<string>("ProjectPath")}'");
+            terminal.ProcessInterface.WriteInput($"cd '{meta.GetMetaValue<string>("ProjectPath")}'");
 
             terminal.IsInputEnabled = true;
             terminal.AutoScroll = true;

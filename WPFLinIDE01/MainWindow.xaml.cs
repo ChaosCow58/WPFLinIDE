@@ -37,6 +37,7 @@ namespace WPFLinIDE01
         private FileExporler fileExporler;
         private Terminal cmdTerminal;
         private SyntaxHighlight syntax;
+        private MetaDataFile meta;
 
         public ICommand ShowPowerShell_Command { get; }
         public ICommand SaveFile_Command { get; }
@@ -73,6 +74,7 @@ namespace WPFLinIDE01
             fileExporler = new FileExporler(tvFileTree, tcFileTabs, this);
             tbEditor = fileExporler.editor;
             cmdTerminal = new Terminal(gTermialPanel);
+            meta = (MetaDataFile)App.Current.Properties["MetaData"];
 
             syntax = new SyntaxHighlight();
 
@@ -88,13 +90,12 @@ namespace WPFLinIDE01
             Rename_Command = new RelayCommand(RenameExporler);
             Delete_Command = new RelayCommand(DeleteExporler);
 
-            lRunCode.Content = $"Run {MetaDataFile.GetMetaValue<string>("ProjectName")}";
+            lRunCode.Content = $"Run {meta.GetMetaValue<string>("ProjectName")}";
 
             //for (int i = 0; i < tbEditor.TextArea.CommandBindings.Count; i++)
             //{
             //    Debug.WriteLine($"Command: {tbEditor.TextArea.CommandBindings[i]}");
             //}
-            Debug.WriteLine(this);
         }
 
         public MainWindow()
@@ -114,6 +115,7 @@ namespace WPFLinIDE01
             fileExporler = new FileExporler(tvFileTree, tcFileTabs, this);
             tbEditor = fileExporler.editor;
             cmdTerminal = new Terminal(gTermialPanel);
+            meta = (MetaDataFile)App.Current.Properties["MetaData"];
 
             syntax = new SyntaxHighlight();
 
@@ -129,14 +131,13 @@ namespace WPFLinIDE01
             Rename_Command = new RelayCommand(RenameExporler);
             Delete_Command = new RelayCommand(DeleteExporler);
 
-            lRunCode.Content = $"Run {MetaDataFile.GetMetaValue<string>("ProjectName")}";
+            lRunCode.Content = $"Run {meta.GetMetaValue<string>("ProjectName")}";
 
             //for (int i = 0; i < tbEditor.TextArea.CommandBindings.Count; i++)
             //{
             //    Debug.WriteLine($"Command: {tbEditor.TextArea.CommandBindings[i]}");
             //}
 
-            Debug.WriteLine(this);
 
         }
 
@@ -279,9 +280,9 @@ namespace WPFLinIDE01
 
             Thread.Sleep(500);
 
-            string binDirectory = @$"{MetaDataFile.GetMetaValue<string>("ProjectPath")}\bin\";
+            string binDirectory = @$"{meta.GetMetaValue<string>("ProjectPath")}\bin\";
             string errorLogDir = @$"{binDirectory}Logs\";
-            string errorLogDirJson = @$"{binDirectory}Logs\{Path.GetFileNameWithoutExtension(MetaDataFile.GetMetaValue<string>("ProjectName"))}.json";
+            string errorLogDirJson = @$"{binDirectory}Logs\{Path.GetFileNameWithoutExtension(meta.GetMetaValue<string>("ProjectName"))}.json";
 
             if (!Directory.Exists(binDirectory))
             {
@@ -295,7 +296,7 @@ namespace WPFLinIDE01
 
 
             // TODO make a checkbox for unsafe mode use -unsafe if true
-            cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(MetaDataFile.GetMetaValue<string>("ProjectName"))}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDirJson}' '{fileExporler.currentFilePath}'");
+            cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(meta.GetMetaValue<string>("ProjectName"))}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDirJson}' '{fileExporler.currentFilePath}'");
 
             Thread.Sleep(200);
 
@@ -345,7 +346,7 @@ namespace WPFLinIDE01
 
             if (string.IsNullOrEmpty(Item.level))
             {
-                cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(MetaDataFile.GetMetaValue<string>("ProjectName"))}.exe'");
+                cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(meta.GetMetaValue<string>("ProjectName"))}.exe'");
             }
 
             cmdTerminal.terminal.Focus();
@@ -496,6 +497,16 @@ namespace WPFLinIDE01
         public void setProjectOpened(bool value)
         {
             App.Current.Properties["projectOpened"] = value;
+        }     
+        
+        public void setMetaData(MetaDataFile value)
+        {
+            App.Current.Properties["MetaData"] = value;
+        }
+        
+        public MetaDataFile getMetaData()
+        {
+           return (MetaDataFile)App.Current.Properties["MetaData"];
         }
 
         public void setSkipHome(bool value)
@@ -519,12 +530,15 @@ namespace WPFLinIDE01
 
             if (openFolderDialog.ShowDialog() == true)
             {
+                mainWindow.setMetaData(new MetaDataFile());
+                meta = mainWindow.getMetaData();
+
                 string fileDirectory = Path.GetDirectoryName(openFolderDialog.FileName);
 
-                MetaDataFile.CreateMetaFile(fileDirectory, Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
+                meta.CreateMetaFile(fileDirectory, Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
 
-                MetaDataFile.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
-                MetaDataFile.SetMetaValue("ProjectPath", fileDirectory);
+                meta.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
+                meta.SetMetaValue("ProjectPath", fileDirectory);
 
                 mainWindow.setProjectOpened(true);
                 mainWindow.Show();

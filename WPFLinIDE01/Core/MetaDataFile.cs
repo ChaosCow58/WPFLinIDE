@@ -12,14 +12,14 @@ using Newtonsoft.Json;
 
 namespace WPFLinIDE01.Core
 {
-    public static class MetaDataFile
+    public class MetaDataFile
     {
-        private static string filePath = string.Empty;
-        private static string projectName = string.Empty;
-        private static string fullPath = string.Empty;
-        private static string globalFilePath = string.Empty;
+        private string filePath = string.Empty;
+        private string projectName = string.Empty;
+        private string fullPath = string.Empty;
+        private string globalFilePath = string.Empty;
 
-        public static void CreateMetaFile(string filePath, string projectName)
+        public void CreateMetaFile(string filePath, string projectName)
         {
             string fullPath = @$"{Path.Combine(filePath, projectName)}.linproj";
          
@@ -83,13 +83,13 @@ namespace WPFLinIDE01.Core
                   
             
 
-            MetaDataFile.filePath = filePath;
-            MetaDataFile.projectName = projectName;
-            MetaDataFile.fullPath = fullPath;
-            MetaDataFile.globalFilePath = globalFilePath;
+            this.filePath = filePath;
+            this.projectName = projectName;
+            this.fullPath = fullPath;
+            this.globalFilePath = globalFilePath;
         }
 
-        public static void SetMetaValue<T>(string key, T value, bool toGlobal = false) where T : IConvertible
+        public void SetMetaValue<T>(string key, T value, bool toGlobal = false) where T : IConvertible
         {
             if (!toGlobal)
             {
@@ -163,7 +163,7 @@ namespace WPFLinIDE01.Core
             }
         }
 
-        public static T GetMetaValue<T>(string key, bool fromGlobal = false) where T : IConvertible 
+        public T GetMetaValue<T>(string key, bool fromGlobal = false) where T : IConvertible 
         {
             T result = default;
 

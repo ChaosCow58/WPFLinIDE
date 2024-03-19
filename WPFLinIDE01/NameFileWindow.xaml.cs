@@ -20,11 +20,17 @@ namespace WPFLinIDE01
     public partial class NameFileWindow : Window
     {
         public string DirectoryPath { get; }
+        private Window window;
 
         public NameFileWindow(Window window)
         {
             InitializeComponent();
+
+            this.window = window;
             this.Owner = window;
+
+            this.Show();
+            window.IsHitTestVisible = false;
 
             if (!string.IsNullOrEmpty(App.Current.Properties["DotPath"].ToString()))
             {
@@ -41,12 +47,14 @@ namespace WPFLinIDE01
 
         public void ShowWindow()
         {
-            this.ShowDialog();
+            this.Show();
+            window.IsHitTestVisible = false;
         }
 
         private void btCancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+            window.IsHitTestVisible = true;
         }
 
         private void btSave_Click(object sender, RoutedEventArgs e)

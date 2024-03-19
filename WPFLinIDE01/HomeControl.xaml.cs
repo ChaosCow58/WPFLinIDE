@@ -24,9 +24,15 @@ namespace WPFLinIDE01
     /// </summary>
     public partial class HomeControl : UserControl
     {
+        private MetaDataFile metaDataFile;
+
         public HomeControl()
         {
             InitializeComponent();
+
+            metaDataFile = new MetaDataFile();
+
+            App.Current.Properties["MetaData"] = metaDataFile;
         }
 
         private void btOpen_Click(object sender, RoutedEventArgs e)
@@ -46,10 +52,10 @@ namespace WPFLinIDE01
             {
                 string fileDirectory = Path.GetDirectoryName(openFolderDialog.FileName);
 
-                MetaDataFile.CreateMetaFile(fileDirectory, Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
+                metaDataFile.CreateMetaFile(fileDirectory, Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
 
-                MetaDataFile.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
-                MetaDataFile.SetMetaValue("ProjectPath", fileDirectory);
+                metaDataFile.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
+                metaDataFile.SetMetaValue("ProjectPath", fileDirectory);
 
                 App.Current.Properties["projectOpened"] = true;
                 window.Close();

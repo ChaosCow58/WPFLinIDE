@@ -15,9 +15,13 @@ namespace WPFLinIDE01
     /// </summary>
     public partial class NameProjectControl : UserControl
     {
+        private MetaDataFile metaDataFile;
+
         public NameProjectControl()
         {
             InitializeComponent();
+            metaDataFile = new MetaDataFile();
+            App.Current.Properties["MetaData"] = metaDataFile;
         }
 
         private void btCreate_Click(object sender, RoutedEventArgs e)
@@ -39,10 +43,10 @@ namespace WPFLinIDE01
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, "bin"));
                 Directory.CreateDirectory(Path.Combine(diretoryPath.FullName, @"bin\Logs"));
 
-                MetaDataFile.CreateMetaFile(diretoryPath.FullName, tbProjectName.Text);
+                metaDataFile.CreateMetaFile(diretoryPath.FullName, tbProjectName.Text);
 
-                MetaDataFile.SetMetaValue("ProjectName", tbProjectName.Text);
-                MetaDataFile.SetMetaValue("ProjectPath", diretoryPath.FullName);
+                metaDataFile.SetMetaValue("ProjectName", tbProjectName.Text);
+                metaDataFile.SetMetaValue("ProjectPath", diretoryPath.FullName);
 
                 FileStream basicFile = File.Create(Path.Combine(diretoryPath.FullName, "Program.cs"));
 
