@@ -29,9 +29,6 @@ namespace WPFLinIDE01
             this.window = window;
             this.Owner = window;
 
-            this.Show();
-            window.IsHitTestVisible = false;
-
             if (!string.IsNullOrEmpty(App.Current.Properties["DotPath"].ToString()))
             {
                 DirectoryPath = App.Current.Properties["DotPath"].ToString();

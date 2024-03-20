@@ -25,10 +25,10 @@ namespace WPFLinIDE01.Core
         private Grid terminalGrid;
         private MetaDataFile meta;
 
-        public Terminal(Grid displayGrid) 
+        public Terminal(Grid displayGrid, MetaDataFile meta) 
         { 
             terminalGrid = displayGrid;
-            meta = (MetaDataFile)App.Current.Properties["MetaData"];
+            this.meta = meta;
         }
 
         public void CreateTermial()

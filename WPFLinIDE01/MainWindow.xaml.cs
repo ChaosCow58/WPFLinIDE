@@ -54,7 +54,7 @@ namespace WPFLinIDE01
         
         private bool skipHome;
 
-        public MainWindow(bool skipHome)
+        public MainWindow(bool skipHome, MetaDataFile meta)
         {
             InitializeComponent();
 
@@ -71,10 +71,10 @@ namespace WPFLinIDE01
                 this.Close();
             }
 
-            fileExporler = new FileExporler(tvFileTree, tcFileTabs, this);
+            this.meta = meta;
+            fileExporler = new FileExporler(tvFileTree, tcFileTabs, this, meta);
             tbEditor = fileExporler.editor;
-            cmdTerminal = new Terminal(gTermialPanel);
-            meta = (MetaDataFile)App.Current.Properties["MetaData"];
+            cmdTerminal = new Terminal(gTermialPanel, meta);
 
             syntax = new SyntaxHighlight();
 
@@ -92,10 +92,6 @@ namespace WPFLinIDE01
 
             lRunCode.Content = $"Run {meta.GetMetaValue<string>("ProjectName")}";
 
-            //for (int i = 0; i < tbEditor.TextArea.CommandBindings.Count; i++)
-            //{
-            //    Debug.WriteLine($"Command: {tbEditor.TextArea.CommandBindings[i]}");
-            //}
         }
 
         public MainWindow()
@@ -112,10 +108,10 @@ namespace WPFLinIDE01
                 this.Close();
             }
 
-            fileExporler = new FileExporler(tvFileTree, tcFileTabs, this);
-            tbEditor = fileExporler.editor;
-            cmdTerminal = new Terminal(gTermialPanel);
             meta = (MetaDataFile)App.Current.Properties["MetaData"];
+            fileExporler = new FileExporler(tvFileTree, tcFileTabs, this, meta);
+            tbEditor = fileExporler.editor;
+            cmdTerminal = new Terminal(gTermialPanel, meta);
 
             syntax = new SyntaxHighlight();
 
@@ -499,16 +495,7 @@ namespace WPFLinIDE01
             App.Current.Properties["projectOpened"] = value;
         }     
         
-        public void setMetaData(MetaDataFile value)
-        {
-            App.Current.Properties["MetaData"] = value;
-        }
-        
-        public MetaDataFile getMetaData()
-        {
-           return (MetaDataFile)App.Current.Properties["MetaData"];
-        }
-
+ 
         public void setSkipHome(bool value)
         { 
             skipHome = value;
@@ -517,7 +504,8 @@ namespace WPFLinIDE01
         private void miOpen_Click(object sender, RoutedEventArgs e)
         {
 
-            MainWindow mainWindow = new MainWindow(true);
+            MetaDataFile meta1 = new MetaDataFile();
+            MainWindow mainWindow = new MainWindow(true, meta1);
 
             OpenFileDialog openFolderDialog = new OpenFileDialog()
             {
@@ -530,15 +518,18 @@ namespace WPFLinIDE01
 
             if (openFolderDialog.ShowDialog() == true)
             {
-                mainWindow.setMetaData(new MetaDataFile());
-                meta = mainWindow.getMetaData();
+
+                mainWindow.meta = meta1;
 
                 string fileDirectory = Path.GetDirectoryName(openFolderDialog.FileName);
 
-                meta.CreateMetaFile(fileDirectory, Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
+                meta1.CreateMetaFile(fileDirectory, Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
 
-                meta.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
-                meta.SetMetaValue("ProjectPath", fileDirectory);
+                meta1.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
+                meta1.SetMetaValue("ProjectPath", fileDirectory);
+                
+                Debug.WriteLine(meta1.GetHashCode());
+                Debug.WriteLine(meta.GetHashCode());
 
                 mainWindow.setProjectOpened(true);
                 mainWindow.Show();

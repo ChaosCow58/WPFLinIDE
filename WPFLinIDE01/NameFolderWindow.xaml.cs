@@ -20,10 +20,12 @@ namespace WPFLinIDE01
     public partial class NameFolderWindow : Window
     {
         public string DirectoryPath { get; }
+        private Window window;
 
         public NameFolderWindow(Window window)
         {
             InitializeComponent();
+            this.window = window;
             this.Owner = window;
 
             if (!string.IsNullOrEmpty(App.Current.Properties["FilePath"]?.ToString()))
@@ -39,9 +41,16 @@ namespace WPFLinIDE01
             DataContext = this;
         }
 
+        public void ShowWindow()
+        {
+            this.Show();
+            window.IsHitTestVisible = false;
+        }
+
         private void btCancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+            window.IsHitTestVisible = true;
         }
 
         private void btSave_Click(object sender, RoutedEventArgs e)

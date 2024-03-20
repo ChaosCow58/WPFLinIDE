@@ -50,13 +50,14 @@ namespace WPFLinIDE01.Core
         private Window window;
         private MetaDataFile meta;
       
-        public FileExporler(TreeView treeView, TabControl tabControl, Window window)
+        public FileExporler(TreeView treeView, TabControl tabControl, Window window, MetaDataFile meta)
         {
             this.treeview = treeView;
             this.tabControl = tabControl;
             this.window = window;
 
-            meta = (MetaDataFile)App.Current.Properties["MetaData"];
+            this.meta = meta;
+            Debug.WriteLine(this.meta);
         }
 
         private void PopulateTreeView(string path, ExplorlerTreeViewItem parentNode)
@@ -492,7 +493,7 @@ namespace WPFLinIDE01.Core
                 App.Current.Properties["FilePath"] = convertedPath.Replace('/', '\\');
 
                 NameFolderWindow nameFolderWindow  = new NameFolderWindow(window);
-                nameFolderWindow.ShowDialog();
+                nameFolderWindow.ShowWindow();
 
 
                 string folderPath = @$"{fullPath}\{App.Current.Properties["FolderName"]}";
