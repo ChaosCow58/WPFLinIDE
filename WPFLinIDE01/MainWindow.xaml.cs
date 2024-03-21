@@ -17,7 +17,7 @@ using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 
 using Microsoft.Win32;
-using Mono.CSharp;
+using System.Windows.Threading;
 
 #pragma warning disable CA1416
 
@@ -49,9 +49,9 @@ namespace WPFLinIDE01
         public ICommand Delete_Command { get; }
 
         public IHighlightingDefinition SyntaxHighlighting { get; set; }
-        
+
         private TextEditor tbEditor;
-        
+
         private bool skipHome;
 
         public MainWindow(bool skipHome, MetaDataFile meta)
@@ -61,7 +61,7 @@ namespace WPFLinIDE01
             this.skipHome = skipHome;
 
             if (!this.skipHome)
-            {        
+            {
                 homePage = new HomePage();
                 homePage.ShowDialog();
             }
@@ -98,10 +98,10 @@ namespace WPFLinIDE01
         {
             InitializeComponent();
 
-          
+
             homePage = new HomePage();
             homePage.ShowDialog();
-            
+
 
             if (!(bool)App.Current.Properties["projectOpened"])
             {
@@ -148,7 +148,7 @@ namespace WPFLinIDE01
 
             // MetaDataFile.SetMetaValue("Settings", "", true);
         }
-        
+
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             fileExporler.DisplayFileSystem();
@@ -220,7 +220,7 @@ namespace WPFLinIDE01
                 StackPanel stack = Utility.FindVisualChild<StackPanel>(tabItem);
 
                 if (stack != null)
-                { 
+                {
                     block = Utility.FindVisualChild<TextBlock>(stack);
                 }
             }
@@ -228,9 +228,9 @@ namespace WPFLinIDE01
             foreach (ExplorlerTreeViewItem selectedItem in fileExporler.treeview.Items)
             {
                 if (selectedItem.HasItems)
-                {  
-                    foreach (ExplorlerTreeViewItem item in selectedItem.Items) 
-                    {   
+                {
+                    foreach (ExplorlerTreeViewItem item in selectedItem.Items)
+                    {
                         if (!fileExporler.openFile)
                         {
                             TextBox textBlock = Utility.FindVisualChild<TextBox>(item);
@@ -271,7 +271,7 @@ namespace WPFLinIDE01
                 gTermialPanel.Visibility = Visibility.Visible;
                 gsTerminalSplitter.Visibility = Visibility.Visible;
                 tbEditor.MaxHeight = 500;
-                
+
             }
 
             Thread.Sleep(500);
@@ -283,8 +283,8 @@ namespace WPFLinIDE01
             if (!Directory.Exists(binDirectory))
             {
                 Directory.CreateDirectory(binDirectory);
-            } 
-            
+            }
+
             if (!Directory.Exists(errorLogDir))
             {
                 Directory.CreateDirectory(errorLogDir);
@@ -377,7 +377,7 @@ namespace WPFLinIDE01
             }
         }
 
-        private void MoveLineDown(object parameter) 
+        private void MoveLineDown(object parameter)
         {
             int caretOffset = tbEditor.CaretOffset;
             int lineNumber = tbEditor.Document.GetLineByOffset(caretOffset).LineNumber;
@@ -403,7 +403,7 @@ namespace WPFLinIDE01
             }
         }
 
-        private void RenameExporler(object parameter) 
+        private void RenameExporler(object parameter)
         {
             fileExporler.ItemRenameMenuItemBase();
         }
@@ -459,7 +459,7 @@ namespace WPFLinIDE01
 
             if (tabItem != null)
             {
-               fileExporler.tabControl.Items.Remove(tabItem);
+                fileExporler.tabControl.Items.Remove(tabItem);
             }
         }
 
@@ -493,19 +493,39 @@ namespace WPFLinIDE01
         public void setProjectOpened(bool value)
         {
             App.Current.Properties["projectOpened"] = value;
-        }     
-        
- 
+        }
+
+
         public void setSkipHome(bool value)
-        { 
+        {
             skipHome = value;
         }
+
+        private Thread thread;
 
         private void miOpen_Click(object sender, RoutedEventArgs e)
         {
 
+            thread = new Thread(open_Project)
+            { 
+                ApartmentState = ApartmentState.STA
+            };
+
+            thread.Start();
+        }
+
+        private void open_Project()
+        {
+
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
             MetaDataFile meta1 = new MetaDataFile();
             MainWindow mainWindow = new MainWindow(true, meta1);
+
+            mainWindow.Closed += ((sender, e) => 
+            {
+                Thread.
+            });
 
             OpenFileDialog openFolderDialog = new OpenFileDialog()
             {
@@ -518,7 +538,6 @@ namespace WPFLinIDE01
 
             if (openFolderDialog.ShowDialog() == true)
             {
-
                 mainWindow.meta = meta1;
 
                 string fileDirectory = Path.GetDirectoryName(openFolderDialog.FileName);
@@ -527,14 +546,20 @@ namespace WPFLinIDE01
 
                 meta1.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
                 meta1.SetMetaValue("ProjectPath", fileDirectory);
-                
+
                 Debug.WriteLine(meta1.GetHashCode());
                 Debug.WriteLine(meta.GetHashCode());
 
                 mainWindow.setProjectOpened(true);
                 mainWindow.Show();
-                
+                Dispatcher.Run();
+
+            }
+            else
+            {
+               cancellationTokenSource.Cancel();
             }
         }
+
     } // Class
 } // Namespace

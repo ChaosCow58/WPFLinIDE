@@ -445,7 +445,7 @@ namespace WPFLinIDE01.Core
 
 
                 NameFileWindow nameFileWindow = new NameFileWindow(window);
-                nameFileWindow.ShowWindow();
+                nameFileWindow.ShowDialog();
 
                 if (!string.IsNullOrEmpty(App.Current.Properties["FileName"]?.ToString()))
                 {
@@ -493,7 +493,7 @@ namespace WPFLinIDE01.Core
                 App.Current.Properties["FilePath"] = convertedPath.Replace('/', '\\');
 
                 NameFolderWindow nameFolderWindow  = new NameFolderWindow(window);
-                nameFolderWindow.ShowWindow();
+                nameFolderWindow.ShowDialog();
 
 
                 string folderPath = @$"{fullPath}\{App.Current.Properties["FolderName"]}";
