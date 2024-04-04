@@ -85,8 +85,6 @@ namespace WPFLinIDE01.Core
                     fileNode.Header = CreateHeader(Path.GetFileName(file), false); // Indicate it's a folder
                     fileNode.Tag = file; // Store full path for later use
                     fileNode.MouseDoubleClick += FileNode_MouseDown;
-                    fileNode.LostFocus += FileNode_LostFocus;
-                    fileNode.GotFocus += FileNode_GotFocus;
                     fileNode.ItemType = ItemType.File;
                     parentNode.Items.Add(fileNode);
                 }
@@ -95,28 +93,6 @@ namespace WPFLinIDE01.Core
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(1);
-            }
-        }
-
-        private void FileNode_GotFocus(object sender, RoutedEventArgs e)
-        {
-            ExplorlerTreeViewItem treeViewItem = (ExplorlerTreeViewItem)sender;
-
-            StackPanel stack = Utility.FindVisualChild<StackPanel>(treeViewItem);
-            if (stack != null)
-            { 
-                stack.Background = Brushes.Gray;
-            }
-        }
-
-        private void FileNode_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ExplorlerTreeViewItem treeViewItem = (ExplorlerTreeViewItem)sender;
-
-            StackPanel stack = Utility.FindVisualChild<StackPanel>(treeViewItem);
-            if (stack != null)
-            {
-                stack.Background = Brushes.DarkGray;
             }
         }
 
@@ -582,8 +558,6 @@ namespace WPFLinIDE01.Core
                             fileNode.Header = CreateHeader(Path.GetFileName(file), false);
                             fileNode.Tag = file; // Store full path for later use
                             fileNode.MouseDoubleClick += FileNode_MouseDown;
-                            fileNode.LostFocus += FileNode_LostFocus;
-                            fileNode.GotFocus += FileNode_GotFocus;
                             fileNode.ItemType = ItemType.File;
                             folderNode.Items.Add(fileNode);
                         }

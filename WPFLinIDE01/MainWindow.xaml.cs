@@ -7,17 +7,23 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
+
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Host.Mef;
+using Microsoft.CodeAnalysis.Text;
 
 using Newtonsoft.Json;
 
-using ICSharpCode.AvalonEdit.Highlighting;
-using WPFLinIDE01.Core;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Highlighting;
 
-using Microsoft.Win32;
-using System.Windows.Threading;
+using WPFLinIDE01.Core;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.Host;
 
 #pragma warning disable CA1416
 
@@ -52,52 +58,16 @@ namespace WPFLinIDE01
 
         private TextEditor tbEditor;
 
-        private bool skipHome;
-
-        public MainWindow(bool skipHome, MetaDataFile meta)
-        {
-            InitializeComponent();
-
-            this.skipHome = skipHome;
-
-            if (!this.skipHome)
-            {
-                homePage = new HomePage();
-                homePage.ShowDialog();
-            }
-
-            if (!(bool)App.Current.Properties["projectOpened"])
-            {
-                this.Close();
-            }
-
-            this.meta = meta;
-            fileExporler = new FileExporler(tvFileTree, tcFileTabs, this, meta);
-            tbEditor = fileExporler.editor;
-            cmdTerminal = new Terminal(gTermialPanel, meta);
-
-            syntax = new SyntaxHighlight();
-
-            Closing += MainWindow_Closing;
-            Loaded += MainWindow_Loaded;
-
-            ShowPowerShell_Command = new RelayCommand(ShowPowerShell);
-            SaveFile_Command = new RelayCommand(SaveFile);
-            RunCode_Command = new RelayCommand(RunCode);
-            CopyLine_Command = new RelayCommand(CopyLine);
-            MoveLineUp_Command = new RelayCommand(MoveLineUp);
-            MoveLineDown_Command = new RelayCommand(MoveLineDown);
-            Rename_Command = new RelayCommand(RenameExporler);
-            Delete_Command = new RelayCommand(DeleteExporler);
-
-            lRunCode.Content = $"Run {meta.GetMetaValue<string>("ProjectName")}";
-
-        }
+        private readonly AdhocWorkspace _workspace;
+        private readonly Project _project;
 
         public MainWindow()
         {
             InitializeComponent();
 
+
+            _workspace = new AdhocWorkspace();
+            _project = _workspace.AddProject("o", LanguageNames.CSharp);
 
             homePage = new HomePage();
             homePage.ShowDialog();
@@ -420,7 +390,7 @@ namespace WPFLinIDE01
             e.Handled = true;
         }
 
-        public void tbEditor_TextChanged(object sender, EventArgs e)
+        public async void tbEditor_TextChanged(object sender, EventArgs e)
         {
             TabItem tabItem = (TabItem)fileExporler.tabControl.SelectedItem;
             if (tabItem != null)
@@ -450,6 +420,13 @@ namespace WPFLinIDE01
                 }
             }
             fileExporler.openFile = false;
+
+
+            IEnumerable<string> completionList = await GetCompletionListAsync(fileExporler.editor.Text, fileExporler.editor.CaretOffset);
+            foreach (string completion in completionList) 
+            { 
+                Debug.WriteLine(completion);
+            }
         }
 
         private void CloseTab_Click(object sender, RoutedEventArgs e)
@@ -490,75 +467,35 @@ namespace WPFLinIDE01
             this.DragMove();
         }
 
-        public void setProjectOpened(bool value)
-        {
-            App.Current.Properties["projectOpened"] = value;
-        }
-
-
-        public void setSkipHome(bool value)
-        {
-            skipHome = value;
-        }
-
-        private Thread thread;
-
         private void miOpen_Click(object sender, RoutedEventArgs e)
         {
-
-            thread = new Thread(open_Project)
-            { 
-                ApartmentState = ApartmentState.STA
-            };
-
-            thread.Start();
+            ProcessStartInfo processStartInfo = new ProcessStartInfo("WPFLinIDE01");
+            Process.Start(processStartInfo);
         }
 
-        private void open_Project()
-        {
+        private async Task<IEnumerable<string>> GetCompletionListAsync(string code, int position)
+        { 
+            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
 
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            Document document = _workspace.AddDocument(_project.Id, "Test.cs", syntaxTree.GetText());
 
-            MetaDataFile meta1 = new MetaDataFile();
-            MainWindow mainWindow = new MainWindow(true, meta1);
-
-            mainWindow.Closed += ((sender, e) => 
-            {
-                Thread.
-            });
-
-            OpenFileDialog openFolderDialog = new OpenFileDialog()
-            {
-                Title = "Select a Project",
-                CheckFileExists = true,
-                CheckPathExists = true,
-                InitialDirectory = "C:\\",
-                Filter = "LinIDE Project Files (*.linproj)|*.linproj"
-            };
-
-            if (openFolderDialog.ShowDialog() == true)
-            {
-                mainWindow.meta = meta1;
-
-                string fileDirectory = Path.GetDirectoryName(openFolderDialog.FileName);
-
-                meta1.CreateMetaFile(fileDirectory, Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
-
-                meta1.SetMetaValue("ProjectName", Path.GetFileNameWithoutExtension(openFolderDialog.FileName));
-                meta1.SetMetaValue("ProjectPath", fileDirectory);
-
-                Debug.WriteLine(meta1.GetHashCode());
-                Debug.WriteLine(meta.GetHashCode());
-
-                mainWindow.setProjectOpened(true);
-                mainWindow.Show();
-                Dispatcher.Run();
-
+            HostLanguageServices languageServices = _workspace.Services.GetLanguageServices(LanguageNames.CSharp);
+            if (languageServices == null) 
+            { 
+                return Enumerable.Empty<string>();
             }
-            else
+
+            CompletionService completionService = languageServices.GetRequiredService<CompletionService>();
+
+            if (completionService == null) 
             {
-               cancellationTokenSource.Cancel();
+                Debug.WriteLine("null");
+                return Enumerable.Empty<string>(); 
             }
+
+            CompletionList completionList = await completionService.GetCompletionsAsync(document, position);
+
+            return completionList.ItemsList.Select(item => item.DisplayText);
         }
 
     } // Class
