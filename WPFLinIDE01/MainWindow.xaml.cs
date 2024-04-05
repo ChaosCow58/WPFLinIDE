@@ -24,6 +24,11 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Completion;
 using Microsoft.CodeAnalysis.Host;
+using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Windows.Controls.Primitives;
+using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCode.AvalonEdit.Editing;
 
 #pragma warning disable CA1416
 
@@ -58,16 +63,24 @@ namespace WPFLinIDE01
 
         private TextEditor tbEditor;
 
-        private readonly AdhocWorkspace _workspace;
-        private readonly Project _project;
+        private readonly ListBox listBox;
+        private readonly Popup popup;
+        private readonly Workspace workspace;
 
         public MainWindow()
         {
             InitializeComponent();
 
+            listBox = new ListBox();
+            popup = new Popup();
+            
+            listBox.SelectionChanged += ListBox_SelectionChanged;
+            listBox.Visibility = Visibility.Collapsed;
+            popup.Child = listBox;
+            
+            Panel.SetZIndex(listBox, 1);
 
-            _workspace = new AdhocWorkspace();
-            _project = _workspace.AddProject("o", LanguageNames.CSharp);
+            workspace = new AdhocWorkspace();
 
             homePage = new HomePage();
             homePage.ShowDialog();
@@ -107,6 +120,61 @@ namespace WPFLinIDE01
 
         }
 
+        private List<string> GetCompletionSuggestions(string text, int caretPostion)
+        { 
+            List<string> suggestions = new List<string>();
+            
+            SyntaxTree syntaxTree = SyntaxFactory.ParseSyntaxTree(text);
+            SyntaxNode root = syntaxTree.GetRoot();
+            SyntaxToken token = root.FindToken(caretPostion);
+
+            SyntaxNode memberAccessNode = root.DescendantNodes().Last();
+
+            SemanticModel semanticModel = GetSemanticModel(syntaxTree);
+            ITypeSymbol symbolInfo = semanticModel.GetTypeInfo(memberAccessNode).Type;
+
+            if (symbolInfo != null) 
+            { 
+                foreach (ISymbol symbol in symbolInfo.GetMembers()) 
+                {
+                    if (!symbol.CanBeReferencedByName || symbol.DeclaredAccessibility != Microsoft.CodeAnalysis.Accessibility.Public || symbol.IsStatic)
+                    {
+                        continue;
+                    }
+
+                    suggestions.Add(symbol.Name);
+                }
+            
+            }
+
+
+
+            // Debug.WriteLine($"Token: {token.Kind()}");
+
+            return suggestions;
+            
+        }
+
+        private SemanticModel GetSemanticModel(SyntaxTree syntaxTree) 
+        {
+            CSharpCompilation compilation = CSharpCompilation.Create("WPFLinIDE01")
+                .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
+                .AddSyntaxTrees(syntaxTree);
+
+            return compilation.GetSemanticModel(syntaxTree);
+        }
+
+        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string selectSuggestion = (string)listBox.SelectedItem;
+
+            if (selectSuggestion != null)
+            {
+                fileExporler.editor.Document.Insert(fileExporler.editor.CaretOffset, selectSuggestion);
+            }
+
+            listBox.Visibility = Visibility.Collapsed;
+        }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -422,11 +490,21 @@ namespace WPFLinIDE01
             fileExporler.openFile = false;
 
 
-            IEnumerable<string> completionList = await GetCompletionListAsync(fileExporler.editor.Text, fileExporler.editor.CaretOffset);
-            foreach (string completion in completionList) 
-            { 
-                Debug.WriteLine(completion);
-            }
+            string text = fileExporler.editor.Text;
+            int caretPostion = fileExporler.editor.CaretOffset;
+
+            List<string> suggestions = GetCompletionSuggestions(text, caretPostion);
+
+            listBox.ItemsSource = suggestions;
+            listBox.Visibility = suggestions.Any() ? Visibility.Visible : Visibility.Collapsed;
+
+            listBox.Margin = new Thickness(fileExporler.editor.Margin.Left + caretPostion,
+                fileExporler.editor.Margin.Top + caretPostion, 0, 0);
+
+            Caret caret = fileExporler.editor.TextArea.Caret;
+            TextView textView = fileExporler.editor.TextArea.TextView;
+            var location = textView.GetVisualPosition(caret.VisualColumn, caret.Line);
+
         }
 
         private void CloseTab_Click(object sender, RoutedEventArgs e)
@@ -473,30 +551,6 @@ namespace WPFLinIDE01
             Process.Start(processStartInfo);
         }
 
-        private async Task<IEnumerable<string>> GetCompletionListAsync(string code, int position)
-        { 
-            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
-
-            Document document = _workspace.AddDocument(_project.Id, "Test.cs", syntaxTree.GetText());
-
-            HostLanguageServices languageServices = _workspace.Services.GetLanguageServices(LanguageNames.CSharp);
-            if (languageServices == null) 
-            { 
-                return Enumerable.Empty<string>();
-            }
-
-            CompletionService completionService = languageServices.GetRequiredService<CompletionService>();
-
-            if (completionService == null) 
-            {
-                Debug.WriteLine("null");
-                return Enumerable.Empty<string>(); 
-            }
-
-            CompletionList completionList = await completionService.GetCompletionsAsync(document, position);
-
-            return completionList.ItemsList.Select(item => item.DisplayText);
-        }
 
     } // Class
 } // Namespace
