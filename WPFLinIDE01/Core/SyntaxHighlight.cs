@@ -7,6 +7,8 @@ using System.Xml;
 using ICSharpCode.AvalonEdit.Highlighting;
 using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 
+#pragma warning disable CA1416
+
 namespace WPFLinIDE01.Core
 { 
     public class SyntaxHighlight

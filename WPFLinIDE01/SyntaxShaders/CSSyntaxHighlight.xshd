@@ -10,6 +10,7 @@
 	<Color name="FunctionCalls" foreground="#E6E6B1"/>
 	<Color name="Generic" foreground="LightGreen"/>
 	<Color name="Attributes" foreground="#4DC9B0"/>
+	<Color name="EscapeSeq" foreground="#FFD68E"/>
 
 	<RuleSet>
 		<!-- Comments -->
@@ -23,8 +24,14 @@
 			<End>"</End>
 			<RuleSet>
 				<!-- Nested span for escape sequences -->
-				<Span begin="\\" end="." />
+				<Span color="EscapeSeq" begin="\\" end="." />
 			</RuleSet>
+		</Span>
+
+		<!-- Chars -->
+		<Span color="String">
+			<Begin>'</Begin>
+			<End>'</End>
 		</Span>
 
 		<!-- Keywords -->

@@ -14,7 +14,7 @@
         <KeyBinding Key="S"    Modifiers="Ctrl"     Command="{Binding SaveFile_Command}"/>
         <KeyBinding Key="D"    Modifiers="Ctrl"     Command="{Binding CopyLine_Command}"/>
         <KeyBinding Key="Up"   Modifiers="Alt"      Command="{Binding MoveLineUp_Command}"/>
-        <KeyBinding Key="Down" Modifiers="Alt"      Command="{Binding MoveLineDown_Command}"/>
+        <!--<KeyBinding Key="Down" Modifiers="Alt"      Command="{Binding MoveLineDown_Command}"/>-->
         <KeyBinding Key="F5"   Modifiers=""         Command="{Binding RunCode_Command}"/>
         <KeyBinding Key="F2"   Modifiers=""         Command="{Binding Rename_Command}"/>
         <KeyBinding Key="Del"  Modifiers=""         Command="{Binding Delete_Command}"/>

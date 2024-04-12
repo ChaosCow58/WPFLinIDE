@@ -61,8 +61,6 @@ namespace WPFLinIDE01
 
         public IHighlightingDefinition SyntaxHighlighting { get; set; }
 
-        private TextEditor tbEditor;
-
         private readonly ListBox listBox;
         private readonly Popup popup;
         private readonly Workspace workspace;
@@ -93,7 +91,7 @@ namespace WPFLinIDE01
 
             meta = (MetaDataFile)App.Current.Properties["MetaData"];
             fileExporler = new FileExporler(tvFileTree, tcFileTabs, this, meta);
-            tbEditor = fileExporler.editor;
+            fileExporler.editor = fileExporler.editor;
             cmdTerminal = new Terminal(gTermialPanel, meta);
 
             syntax = new SyntaxHighlight();
@@ -112,9 +110,9 @@ namespace WPFLinIDE01
 
             lRunCode.Content = $"Run {meta.GetMetaValue<string>("ProjectName")}";
 
-            //for (int i = 0; i < tbEditor.TextArea.CommandBindings.Count; i++)
+            //for (int i = 0; i < fileExporler.editor.TextArea.CommandBindings.Count; i++)
             //{
-            //    Debug.WriteLine($"Command: {tbEditor.TextArea.CommandBindings[i]}");
+            //    Debug.WriteLine($"Command: {fileExporler.editor.TextArea.CommandBindings[i]}");
             //}
 
 
@@ -308,7 +306,7 @@ namespace WPFLinIDE01
                 cmdTerminal.CreateTermial();
                 gTermialPanel.Visibility = Visibility.Visible;
                 gsTerminalSplitter.Visibility = Visibility.Visible;
-                tbEditor.MaxHeight = 500;
+                fileExporler.editor.MaxHeight = 500;
 
             }
 
@@ -328,6 +326,7 @@ namespace WPFLinIDE01
                 Directory.CreateDirectory(errorLogDir);
             }
 
+            SaveFileBase();
 
             // TODO make a checkbox for unsafe mode use -unsafe if true
             cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(meta.GetMetaValue<string>("ProjectName"))}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDirJson}' '{fileExporler.currentFilePath}'");
@@ -380,7 +379,16 @@ namespace WPFLinIDE01
 
             if (string.IsNullOrEmpty(Item.level))
             {
-                cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{binDirectory}{Path.GetFileNameWithoutExtension(meta.GetMetaValue<string>("ProjectName"))}.exe'");
+                string exeCommand = @$"""{binDirectory}{Path.GetFileNameWithoutExtension(meta.GetMetaValue<string>("ProjectName"))}.exe""";
+
+                Process outputProcess = new Process();
+                outputProcess.StartInfo = new ProcessStartInfo() 
+                { 
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoLogo -Command {exeCommand}",
+                };
+                outputProcess.Start();
+
             }
 
             cmdTerminal.terminal.Focus();
@@ -390,42 +398,42 @@ namespace WPFLinIDE01
 
         private void CopyLine(object parameter)
         {
-            int currentLineNumber = tbEditor.TextArea.Caret.Line;
+            int currentLineNumber = fileExporler.editor.TextArea.Caret.Line;
 
-            string currentLineText = tbEditor.Document.GetText(tbEditor.Document.GetLineByNumber(currentLineNumber));
-            tbEditor.Document.Insert(tbEditor.Document.GetLineByNumber(currentLineNumber).EndOffset, "\n" + currentLineText);
+            string currentLineText = fileExporler.editor.Document.GetText(fileExporler.editor.Document.GetLineByNumber(currentLineNumber));
+            fileExporler.editor.Document.Insert(fileExporler.editor.Document.GetLineByNumber(currentLineNumber).EndOffset, "\n" + currentLineText);
         }
 
         private void MoveLineUp(object parameter)
         {
-            int caretOffset = tbEditor.CaretOffset;
-            int lineNumber = tbEditor.Document.GetLineByOffset(caretOffset).LineNumber;
+            int caretOffset = fileExporler.editor.CaretOffset;
+            int lineNumber = fileExporler.editor.Document.GetLineByOffset(caretOffset).LineNumber;
 
             if (lineNumber > 1)
             {
-                DocumentLine line = tbEditor.Document.GetLineByNumber(lineNumber);
-                string lineText = tbEditor.Document.GetText(line);
-                DocumentLine prevLine = tbEditor.Document.GetLineByNumber(lineNumber - 1);
+                DocumentLine line = fileExporler.editor.Document.GetLineByNumber(lineNumber);
+                string lineText = fileExporler.editor.Document.GetText(line);
+                DocumentLine prevLine = fileExporler.editor.Document.GetLineByNumber(lineNumber - 1);
 
-                tbEditor.Document.Remove(line.Offset, line.TotalLength);
-                tbEditor.Document.Insert(prevLine.Offset, lineText + Environment.NewLine);
+                fileExporler.editor.Document.Remove(line.Offset, line.TotalLength);
+                fileExporler.editor.Document.Insert(prevLine.Offset, lineText + Environment.NewLine);
 
                 // Move caret to the beginning of the moved line
-                tbEditor.CaretOffset = prevLine.Offset;
+                fileExporler.editor.CaretOffset = prevLine.Offset;
             }
         }
 
         private void MoveLineDown(object parameter)
         {
-            int caretOffset = tbEditor.CaretOffset;
-            int lineNumber = tbEditor.Document.GetLineByOffset(caretOffset).LineNumber;
-            int totalLines = tbEditor.Document.LineCount;
+            int caretOffset = fileExporler.editor.CaretOffset;
+            int lineNumber = fileExporler.editor.Document.GetLineByOffset(caretOffset).LineNumber;
+            int totalLines = fileExporler.editor.Document.LineCount;
 
             if (lineNumber < totalLines - 1)
             {
-                var line = tbEditor.Document.GetLineByNumber(lineNumber);
-                var lineText = tbEditor.Document.GetText(line);
-                var nextLine = tbEditor.Document.GetLineByNumber(lineNumber + 1);
+                var line = fileExporler.editor.Document.GetLineByNumber(lineNumber);
+                var lineText = fileExporler.editor.Document.GetText(line);
+                var nextLine = fileExporler.editor.Document.GetLineByNumber(lineNumber + 1);
 
                 // Remove the newline character at the end of the lineText if it exists
                 if (lineText.EndsWith(Environment.NewLine))
@@ -433,11 +441,11 @@ namespace WPFLinIDE01
                     lineText = lineText.Substring(0, lineText.Length - Environment.NewLine.Length);
                 }
 
-                tbEditor.Document.Remove(line.Offset, line.TotalLength);
-                tbEditor.Document.Insert(nextLine.Offset, lineText);
+                fileExporler.editor.Document.Remove(line.Offset, line.TotalLength);
+                fileExporler.editor.Document.Insert(nextLine.Offset, lineText);
 
                 // Move caret to the beginning of the moved line
-                tbEditor.CaretOffset = nextLine.Offset;
+                fileExporler.editor.CaretOffset = nextLine.Offset;
             }
         }
 
@@ -458,7 +466,7 @@ namespace WPFLinIDE01
             e.Handled = true;
         }
 
-        public async void tbEditor_TextChanged(object sender, EventArgs e)
+        public void tbEditor_TextChanged(object sender, EventArgs e)
         {
             TabItem tabItem = (TabItem)fileExporler.tabControl.SelectedItem;
             if (tabItem != null)
@@ -503,7 +511,7 @@ namespace WPFLinIDE01
 
             Caret caret = fileExporler.editor.TextArea.Caret;
             TextView textView = fileExporler.editor.TextArea.TextView;
-            var location = textView.GetVisualPosition(caret.VisualColumn, caret.Line);
+            // var location = textView.GetVisualPosition(caret.VisualColumn, caret.Line);
 
         }
 
