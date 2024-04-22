@@ -299,6 +299,8 @@ namespace WPFLinIDE01
             RunCodeBase();
         }
 
+        private int processId = 0;
+
         private void RunCodeBase()
         {
             if (gTermialPanel.Visibility == Visibility.Collapsed && gsTerminalSplitter.Visibility == Visibility.Collapsed)
@@ -376,10 +378,28 @@ namespace WPFLinIDE01
                 }
             }
 
-
             if (string.IsNullOrEmpty(Item.level))
             {
                 string exeCommand = @$"""{binDirectory}{Path.GetFileNameWithoutExtension(meta.GetMetaValue<string>("ProjectName"))}.exe""";
+
+           /*     if (processId != 0 && !Process.GetProcessById(processId).HasExited)
+                { 
+                    Process.GetProcessById(processId).Kill();
+                    processId = 0;
+                }       */
+                
+                if (processId != 0 && !Process.GetProcessById(processId).HasExited)
+                {
+                    Process[] processes = Process.GetProcesses();
+                    
+                    foreach (Process process in processes) 
+                    { 
+                        process.Kill();
+                    }
+
+                    Process.GetProcessById(processId).Kill();
+                    processId = 0;
+                }
 
                 Process outputProcess = new Process();
                 outputProcess.StartInfo = new ProcessStartInfo() 
@@ -388,7 +408,7 @@ namespace WPFLinIDE01
                     Arguments = $"-NoLogo -Command {exeCommand}",
                 };
                 outputProcess.Start();
-
+                processId = outputProcess.Id;
             }
 
             cmdTerminal.terminal.Focus();
