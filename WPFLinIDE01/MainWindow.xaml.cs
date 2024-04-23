@@ -29,6 +29,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Windows.Controls.Primitives;
 using ICSharpCode.AvalonEdit.Rendering;
 using ICSharpCode.AvalonEdit.Editing;
+using System.Management;
+using System.Runtime.InteropServices;
 
 #pragma warning disable CA1416
 
@@ -330,6 +332,21 @@ namespace WPFLinIDE01
 
             SaveFileBase();
 
+            try
+            {
+                if (processId != 0 && !Process.GetProcessById(processId).HasExited)
+                {
+                    Process.GetProcessById(processId).Kill();
+                    processId = 0;
+                }
+            }
+            catch (ArgumentException ex)
+            { 
+                Debug.WriteLine(ex.Message);
+            }
+
+            Thread.Sleep(250);
+
             // TODO make a checkbox for unsafe mode use -unsafe if true
             cmdTerminal.terminal.ProcessInterface.WriteInput(@$"&'{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\Roslyn\csc.exe' -out:'{binDirectory}{Path.GetFileNameWithoutExtension(meta.GetMetaValue<string>("ProjectName"))}.exe' -debug:full -nologo -errorendlocation -errorlog:'{errorLogDirJson}' '{fileExporler.currentFilePath}'");
 
@@ -382,31 +399,17 @@ namespace WPFLinIDE01
             {
                 string exeCommand = @$"""{binDirectory}{Path.GetFileNameWithoutExtension(meta.GetMetaValue<string>("ProjectName"))}.exe""";
 
-           /*     if (processId != 0 && !Process.GetProcessById(processId).HasExited)
-                { 
-                    Process.GetProcessById(processId).Kill();
-                    processId = 0;
-                }       */
-                
-                if (processId != 0 && !Process.GetProcessById(processId).HasExited)
-                {
-                    Process[] processes = Process.GetProcesses();
-                    
-                    foreach (Process process in processes) 
-                    { 
-                        process.Kill();
-                    }
-
-                    Process.GetProcessById(processId).Kill();
-                    processId = 0;
-                }
-
                 Process outputProcess = new Process();
                 outputProcess.StartInfo = new ProcessStartInfo() 
                 { 
-                    FileName = "powershell.exe",
-                    Arguments = $"-NoLogo -Command {exeCommand}",
+                    FileName = "conhost",
+                    Arguments = $"powershell -NoLogo -Command {exeCommand}",
+                    CreateNoWindow = false,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false,
                 };
+
                 outputProcess.Start();
                 processId = outputProcess.Id;
             }
@@ -414,7 +417,6 @@ namespace WPFLinIDE01
             cmdTerminal.terminal.Focus();
             cmdTerminal.terminal.InternalRichTextBox.ScrollToCaret();
         }
-
 
         private void CopyLine(object parameter)
         {
