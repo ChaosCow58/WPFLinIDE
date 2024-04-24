@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing.Drawing2D;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -81,6 +77,11 @@ namespace WPFLinIDE01.Core
                 }
                 foreach (string file in Directory.GetFiles(path))
                 {
+                    if (Path.GetExtension(Path.GetFileName(file)) == ".linproj")
+                    {
+                        continue;
+                    }
+
                     ExplorlerTreeViewItem fileNode = new ExplorlerTreeViewItem();
                     fileNode.Header = CreateHeader(Path.GetFileName(file), false); // Indicate it's a folder
                     fileNode.Tag = file; // Store full path for later use
@@ -554,6 +555,11 @@ namespace WPFLinIDE01.Core
 
                         foreach (string file in Directory.GetFiles(path))
                         {
+                            if (Path.GetExtension(Path.GetFileName(file)) == ".linproj")
+                            {
+                                continue;
+                            }
+
                             ExplorlerTreeViewItem fileNode = new ExplorlerTreeViewItem();
                             fileNode.Header = CreateHeader(Path.GetFileName(file), false);
                             fileNode.Tag = file; // Store full path for later use
