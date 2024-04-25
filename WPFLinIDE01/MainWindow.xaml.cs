@@ -398,12 +398,13 @@ namespace WPFLinIDE01
             if (string.IsNullOrEmpty(Item.level))
             {
                 string exeCommand = @$"""{binDirectory}{Path.GetFileNameWithoutExtension(meta.GetMetaValue<string>("ProjectName"))}.exe""";
+                string styleCommand = @$"""{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\style.ps1""";
 
                 Process outputProcess = new Process();
                 outputProcess.StartInfo = new ProcessStartInfo() 
                 { 
                     FileName = "conhost",
-                    Arguments = $"powershell -NoLogo -Command {exeCommand}",
+                    Arguments = $"powershell -NoLogo -NoExit -Command {exeCommand}; {styleCommand} 'LinIDE - Running {meta.GetMetaValue<string>("ProjectName")}'",
                     CreateNoWindow = false,
                     UseShellExecute = false,
                     RedirectStandardOutput = false,
