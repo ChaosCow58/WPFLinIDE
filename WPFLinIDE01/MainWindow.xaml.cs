@@ -404,7 +404,7 @@ namespace WPFLinIDE01
                 outputProcess.StartInfo = new ProcessStartInfo() 
                 { 
                     FileName = "conhost",
-                    Arguments = $"powershell -NoLogo -NoExit -Command {exeCommand}; {styleCommand} 'LinIDE - Running {meta.GetMetaValue<string>("ProjectName")}'",
+                    Arguments = $"powershell -NoLogo -Command {styleCommand} 'LinIDE - Running {meta.GetMetaValue<string>("ProjectName")}'; {exeCommand}",
                     CreateNoWindow = false,
                     UseShellExecute = false,
                     RedirectStandardOutput = false,
